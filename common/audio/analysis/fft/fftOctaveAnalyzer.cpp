@@ -1,17 +1,18 @@
 
-#include "FFTOctaveAnalyzer.h"	
+#include "fftOctaveAnalyzer.h"
+#include <math.h>
 
 
-void FFTOctaveAnalyzer::setup(float samplingRate, int nBandsInTheFFT, int nAveragesPerOctave){
+void FFTOctaveAnalyzer::setup(float _samplingRate, int nBandsInTheFFT, int _nAveragesPerOctave){
 
-    samplingRate = samplingRate;
+    samplingRate = _samplingRate;
     nSpectrum = nBandsInTheFFT;
     spectrumFrequencySpan = (samplingRate / 2.0f) / (float)(nSpectrum);
     nAverages = nBandsInTheFFT;
     // fe:  2f for octave bands, sqrt(2) for half-octave bands, cuberoot(2) for third-octave bands, etc
     if (nAveragesPerOctave==0) // um, wtf?
 		nAveragesPerOctave = 1;
-    nAveragesPerOctave = nAveragesPerOctave;
+    nAveragesPerOctave = _nAveragesPerOctave;
     averageFrequencyIncrement = pow(2.0f, 1.0f/(float)(nAveragesPerOctave));
     // this isn't currently configurable (used once here then no effect), but here's some reasoning:
     // 43 is a good value if you want to approximate "computer" octaves: 44100/2/2/2/2/2/2/2/2/2/2

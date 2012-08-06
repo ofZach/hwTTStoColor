@@ -1,0 +1,3 @@
+ofxNativeGui
+ofxXmlSettings
+ofxMidi

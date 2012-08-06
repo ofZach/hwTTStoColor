@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+
+#include "ofxMidi.h"
 #include "ofxNativeGui.h"
 #include "audioAnalyzer.h"
 #include "audioToColorMapper.h"
@@ -11,8 +13,6 @@
 #include "xbeeSRst.h"
 #include "ofxXmlSettings.h"
 
-
-#include "ofxMidi.h"
 
 class xbee {
 public: 

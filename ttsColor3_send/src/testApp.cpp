@@ -207,7 +207,7 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-    if (ofGetFrameNum() == 2) GUI.show();
+    //if (ofGetFrameNum() == 2) GUI.show();
     
     ofVec3f temp;
     temp.x = colorAltered.r;
@@ -226,7 +226,7 @@ void testApp::update(){
     ofBackground(temp.x, temp.y, temp.z);
     
     
-    lights[0]->color = temp;
+    if(!lights.empty()) lights[0]->color = temp;
     
     
 //#ifdef XBEE_SEND
