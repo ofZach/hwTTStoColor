@@ -6,7 +6,15 @@
 # Compiled Dynamic libraries
 *.so
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+*.depend
+*.layout
+*.mode*v3
+*.pbxuser
+*.app*
+*.DS_*
+
+.svn/
+obj/
+bin/
+build/
+!data/
