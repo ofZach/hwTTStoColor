@@ -37,6 +37,7 @@ void testApp::computeMessageColors(){
 
 
     unsigned int audioCounter = 0;
+    soundBuffer.resize(soundBuffer.size()+(256-(soundBuffer.size()%256)),0);
     while (audioCounter < soundBuffer.size()){
         AA.analyzeFrame(&soundBuffer[audioCounter], bufferSize, aaFrameTemp);
         const ofColor & colorAltered = ACM.update(aaFrameTemp, color);
@@ -110,6 +111,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				festival_initialize(1,210000);
 				initialized = true;
 			}
+			unsigned long time = ofGetElapsedTimeMicros();
 			lastText = text;
 			tts.convertToAudio(text,44100);
 			if(!headless) mutex.lock();
@@ -117,6 +119,8 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			computeMessageColors();
 			generateWave();
 			if(!headless) mutex.unlock();
+			time = ofGetElapsedTimeMicros() - time;
+			cout << "analysis took " << time << "us" << endl;
 
 			if(headless){
 				string path = ofGetTimestampString()+"_"+text+".svg";
