@@ -125,7 +125,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 
 			string type;
 			if(response.requestFields.find("type")!=response.requestFields.end()){
-				string type = response.requestFields["type"];
+				type = response.requestFields["type"];
 			}else{
 				type = "json";
 			}
