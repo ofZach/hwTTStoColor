@@ -123,32 +123,35 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			if(!headless) mutex.unlock();
 			cout << "analysis took " << time << "us" << endl;
 
+			string type;
 			if(response.requestFields.find("type")!=response.requestFields.end()){
 				string type = response.requestFields["type"];
-				if(type == "svg"){
-					string path = ofGetTimestampString()+"_"+text+".svg";
-					saveWave(path);
-					response.errCode = 301;
-					response.location = path;
-				}else if(type == "json"){
-					ofxJSONElement json;
-					json["text"] = text;
-					json["durationms"] = (int)soundBuffer.getDuration();
-					json["colorsamplems"] = (int)(soundBuffer.getDuration()/colorsForMessage.size());
-					json["colorsampleroundms"] = (int)round(float(soundBuffer.getDuration())/float(colorsForMessage.size()));
-					json["numsamples"] = (int)colorsForMessage.size();
-					Json::Value colors;
-					for(int i=0;i<(int)colorsForMessage.size();i++){
-						Json::Value color;
-						color[0] = (int)colorsForMessage[i].r;
-						color[1] = (int)colorsForMessage[i].g;
-						color[2] = (int)colorsForMessage[i].b;
-						colors[i] = color;
-					}
-					json["colors"] = colors;
-					response.response = json.getRawString(true);
-
+			}else{
+				type = "json";
+			}
+			if(type == "svg"){
+				string path = ofGetTimestampString()+"_"+text+".svg";
+				saveWave(path);
+				response.errCode = 301;
+				response.location = path;
+			}else{ //  if(type == "json")
+				ofxJSONElement json;
+				json["text"] = text;
+				json["durationms"] = (int)soundBuffer.getDuration();
+				json["colorsamplems"] = (int)(soundBuffer.getDuration()/colorsForMessage.size());
+				json["colorsampleroundms"] = (int)round(float(soundBuffer.getDuration())/float(colorsForMessage.size()));
+				json["numsamples"] = (int)colorsForMessage.size();
+				Json::Value colors;
+				for(int i=0;i<(int)colorsForMessage.size();i++){
+					Json::Value color;
+					color[0] = (int)colorsForMessage[i].r;
+					color[1] = (int)colorsForMessage[i].g;
+					color[2] = (int)colorsForMessage[i].b;
+					colors[i] = color;
 				}
+				json["colors"] = colors;
+				response.response = json.getRawString(true);
+
 			}
 		}
 	}
