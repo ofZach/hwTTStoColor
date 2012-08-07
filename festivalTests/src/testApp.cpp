@@ -3,6 +3,7 @@
 #include "ofCairoRenderer.h"
 #include "ofFileUtils.h"
 #include "audioAnalyzer.h"
+#include "ofxJSONElement.h"
 
 //--------------------------------------------------------------
 void testApp::saveWave(string path){
@@ -117,16 +118,37 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			if(!headless) mutex.lock();
 			soundBuffer = tts.soundBuffer;
 			computeMessageColors();
+			time = ofGetElapsedTimeMicros() - time;
 			generateWave();
 			if(!headless) mutex.unlock();
-			time = ofGetElapsedTimeMicros() - time;
 			cout << "analysis took " << time << "us" << endl;
 
-			if(headless){
-				string path = ofGetTimestampString()+"_"+text+".svg";
-				saveWave(path);
-				response.errCode = 301;
-				response.location = path;
+			if(response.requestFields.find("type")!=response.requestFields.end()){
+				string type = response.requestFields["type"];
+				if(type == "svg"){
+					string path = ofGetTimestampString()+"_"+text+".svg";
+					saveWave(path);
+					response.errCode = 301;
+					response.location = path;
+				}else if(type == "json"){
+					ofxJSONElement json;
+					json["text"] = text;
+					json["durationms"] = (int)soundBuffer.getDuration();
+					json["colorsamplems"] = (int)(soundBuffer.getDuration()/colorsForMessage.size());
+					json["colorsampleroundms"] = (int)round(float(soundBuffer.getDuration())/float(colorsForMessage.size()));
+					json["numsamples"] = (int)colorsForMessage.size();
+					Json::Value colors;
+					for(int i=0;i<(int)colorsForMessage.size();i++){
+						Json::Value color;
+						color[0] = (int)colorsForMessage[i].r;
+						color[1] = (int)colorsForMessage[i].g;
+						color[2] = (int)colorsForMessage[i].b;
+						colors[i] = color;
+					}
+					json["colors"] = colors;
+					response.response = json.getRawString(true);
+
+				}
 			}
 		}
 	}

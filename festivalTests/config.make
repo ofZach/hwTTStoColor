@@ -10,16 +10,16 @@ OF_ROOT = ../../..
 # for example search paths like:
 # USER_CFLAGS = -I src/objects
 
-USER_CFLAGS = -I/usr/include/festival -I/usr/include/speech_tools $(addprefix -I, $(shell find ../common -type d))
+USER_CFLAGS = -I/usr/include/festival -I/usr/include/speech_tools $(addprefix -I, $(shell find ../common -type d)) $(shell pkg-config jsoncpp --cflags)
 
 
 # USER_LDFLAGS allows to pass custom flags to the linker
 # for example libraries like:
 # USER_LDFLAGS = libs/libawesomelib.a
 
-USER_LDFLAGS = -lFestival -lestools -lestbase -leststring 
+USER_LDFLAGS = -lFestival -lestools -lestbase -leststring $(shell pkg-config jsoncpp --libs)
 
-USER_LIBS = -lgcrypt -laubio
+USER_LIBS = -lgcrypt -laubio 
 
 
 EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj"

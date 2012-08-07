@@ -1,2 +1,3 @@
 ofxHttpServer
 ofxFft
+ofxJSON
