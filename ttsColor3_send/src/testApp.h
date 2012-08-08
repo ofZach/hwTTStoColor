@@ -60,7 +60,8 @@ class testApp : public ofBaseApp, public ofxNativeGuiEventInterface  {
 
         vector < float > brightnessMessage;
         vector < float > hueDiffMessage;
-    
+        splineInfo splineBriInfo;
+        splineInfo splineHueInfo;
     
         splineConverter SC;
         

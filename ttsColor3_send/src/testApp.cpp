@@ -150,95 +150,59 @@ void testApp::draw(){
     
     ofNoFill();
     
-    /*
+    
     // ----------------------------
     // draw the brightness ramp, store in a polyline
-    ofPolyline temp;
     ofSetColor(0,0,0);
     ofBeginShape();
     for (int i = 0; i < brightnessMessage.size(); i++){
-        ofVertex(i, ofMap(brightnessMessage[i],0,255,10,30, true));
-        temp.addVertex(ofPoint(i, ofMap(brightnessMessage[i], 0,255,0,1, true)));
-        //cout << ofMap(brightnessMessage[i], 255,0,1,0) << endl;
+        ofVertex(i, ofMap(brightnessMessage[i],0,1,50,80));
     }
     ofEndShape();
-    
-    ofEnableAlphaBlending();
-    ofPolyline resample = temp; //.getResampledByCount(150);
-    ofSetColor(255,0,0, 80);
-    
-    // ----------------------------
-    // resmaple
-    vector < float > resampleF;
-    for (int i = 0; i < resample.getVertices().size(); i++){
-        resampleF.push_back(resample.getVertices()[i].y);
-    }
-    
-    // ----------------------------
-    // convert to spline info. 
-    splineInfo inf = SC.splineFromData(resampleF,  80);
     
     // ----------------------------
     // get data back from spline. 
-    vector < ofPoint > ptsBack = SC.dataFromSpline(inf);
+    vector < ofPoint > ptsBack = SC.dataFromSpline(splineBriInfo);
     
     // ----------------------------
     // draw that. 
     ofPushMatrix();
-    //ofTranslate(0,90);
-    float scale = (float)brightnessMessage.size() / (float)resample.size();
-    ofScale(scale, 1, 1);
     ofSetColor(0,0,255);
     ofBeginShape();
     for (int i = 0; i < ptsBack.size(); i++){
-        ofVertex(ptsBack[i].x, ofMap(ptsBack[i].y,0,1,10,40, true));
+        ofVertex(ptsBack[i].x, ofMap(ptsBack[i].y,0,1,50,90));
     }
     ofEndShape();
     ofPopMatrix();
     
     
     
-   
-    
-    
+    // ----------------------------
+    // draw the hue ramp,
     ofSetColor(0,0,0);
     ofBeginShape();
-    temp.clear();
     for (int i = 0; i < hueDiffMessage.size(); i++){
-        ofVertex(i, ofMap(hueDiffMessage[i],-ACM.hueRange,ACM.hueRange,50,100));
-        temp.addVertex(ofPoint(i,ofMap(hueDiffMessage[i],-ACM.hueRange,ACM.hueRange,0,1)));
-        //cout << "? " << ofMap(hueDiffMessage[i],-ACM.hueRange,ACM.hueRange,0,1) << endl;
+        ofVertex(i, ofMap(hueDiffMessage[i],0,1,90,130));
     }
     ofEndShape();
     
-    resample = temp; //.getResampledByCount(150);
-    
-    resampleF.clear();
-    for (int i = 0; i < resample.getVertices().size(); i++){
-        resampleF.push_back(resample.getVertices()[i].y);
-    }
-
-    
-    inf = SC.splineFromData(resampleF, 80);
-    ptsBack = SC.dataFromSpline(inf);
-    
+    // ----------------------------
+    // get data back from spline. 
+    ptsBack = SC.dataFromSpline(splineHueInfo);
     
     // ----------------------------
     // draw that. 
     ofPushMatrix();
-    //ofTranslate(0,90);
-    scale = (float)hueDiffMessage.size() / (float)resample.size();
-    ofScale(scale, 1, 1);
-    ofSetColor(0,255,255);
+    ofSetColor(0,0,255);
     ofBeginShape();
     for (int i = 0; i < ptsBack.size(); i++){
-        //cout << ptsBack[i].y << endl;
-        ofVertex(ptsBack[i].x, 50 + ofMap(ptsBack[i].y,0,1,50,100, false));
+        ofVertex(ptsBack[i].x, 20+ ofMap(ptsBack[i].y,0,1,90,140));
     }
     ofEndShape();
     ofPopMatrix();
-    */
     
+    
+       
 }
 
 //--------------------------------------------------------------
@@ -366,8 +330,8 @@ void testApp::computeMessageColors(){
     // now, let's do some spline fitting!
     
     
-    splineInfo splineBriInfo = SC.splineFromData(brightnessMessage,  80);
-    splineInfo splineHueInfo = SC.splineFromData(hueDiffMessage,  80);
+    splineBriInfo = SC.splineFromData(brightnessMessage,  80);
+    splineHueInfo = SC.splineFromData(hueDiffMessage,  80);
     
     // print out info!
     printf("\n");
