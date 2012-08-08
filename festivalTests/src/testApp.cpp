@@ -126,7 +126,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			type = response.requestFields["type"];
 		}
 
-		if(threaded && type==""){
+		if(threaded){// && type==""){
 			tts.addText(text);
 		}else{
 			if(!initialized){
