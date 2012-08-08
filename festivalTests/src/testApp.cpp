@@ -6,11 +6,11 @@
 #include "ofxJSONElement.h"
 
 //--------------------------------------------------------------
-void testApp::saveWave(string path){
+void testApp::saveWave(ofCairoRenderer::Type type){
 	ofPtr<ofBaseRenderer> storedRenderer = ofGetCurrentRenderer();
 
-	ofPtr<ofCairoRenderer> cairoScreenshot = ofPtr<ofCairoRenderer>(new ofCairoRenderer);
-	cairoScreenshot->setup("www/"+path, ofCairoRenderer::FROM_FILE_EXTENSION, false);
+	//"www/"+path,
+	cairoScreenshot->setupMemoryOnly(type, false);
 
 	ofPtr<ofRendererCollection> rendererCollection = ofPtr<ofRendererCollection>(new ofRendererCollection);
 	rendererCollection->renderers.push_back(storedRenderer);
@@ -20,8 +20,8 @@ void testApp::saveWave(string path){
 	draw();
 	cairoScreenshot->close();
 	ofSetCurrentRenderer(storedRenderer);
-	ofFile index("www/index.html",ofFile::Append);
-	index << ("<a href=\"" + path + "\">"+path+"</a><br/>") ;
+	//ofFile index("www/index.html",ofFile::Append);
+	//index << ("<a href=\"" + path + "\">"+path+"</a><br/>") ;
 }
 
 void testApp::computeMessageColors(){
@@ -54,6 +54,7 @@ void testApp::setup(){
 	ofBackground(255);
 	ofSetColor(0);
 	ofEnableAlphaBlending();
+	cairoScreenshot = ofPtr<ofCairoRenderer>(new ofCairoRenderer);
 
     AA.setup(44100);
 
@@ -130,11 +131,22 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				type = "json";
 			}
 			if(type == "svg"){
-				string path = ofGetTimestampString()+"_"+text+".svg";
-				saveWave(path);
-				response.errCode = 301;
-				response.location = path;
-			}else{ //  if(type == "json")
+				saveWave(ofCairoRenderer::SVG);
+				response.response = cairoScreenshot->getContentBuffer();
+				response.contentType = "image/svg+xml";
+			}else if(type=="pdf"){
+				saveWave(ofCairoRenderer::PDF);
+				response.response = cairoScreenshot->getContentBuffer();
+				response.contentType = "application/pdf";
+			}else if(type=="png"){
+				saveWave(ofCairoRenderer::IMAGE);
+				ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_PNG);
+				response.contentType = "image/png";
+			}else if(type=="jpeg"){
+				saveWave(ofCairoRenderer::IMAGE);
+				ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_JPEG);
+				response.contentType = "image/jpeg";
+			}else{
 				ofxJSONElement json;
 				json["text"] = text;
 				json["durationms"] = (int)soundBuffer.getDuration();
@@ -151,7 +163,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				}
 				json["colors"] = colors;
 				response.response = json.getRawString(true);
-
+				response.contentType = "application/json";
 			}
 		}
 	}
@@ -217,7 +229,7 @@ void testApp::draw(){
 	ofSetColor(0);
 	ofDrawBitmapString(lastText,10,10);
 	wave.draw();
-	if(soundBuffer.bufferSize()>0){
+	if(!headless && soundBuffer.bufferSize()>0){
 		int increment = float(soundBuffer.bufferSize())/float(ofGetWidth());
 		ofSetColor(255,0,0);
 		ofLine(position/increment,0,position/increment,ofGetHeight());

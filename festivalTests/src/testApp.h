@@ -30,11 +30,13 @@ class testApp : public ofBaseApp{
 
 		void generateWave();
 		void computeMessageColors();
-		void saveWave(string path);
+		void saveWave(ofCairoRenderer::Type type);
 
 
 
 		void audioOut(float * output, int buffersize, int nChannels, int deviceID, unsigned long long int tickCount);
+
+		ofPtr<ofCairoRenderer> cairoScreenshot;
 
 		bool headless, threaded, initialized;
 		
