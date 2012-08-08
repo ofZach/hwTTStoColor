@@ -25,17 +25,16 @@ void TTS::start(){
 
 
 void TTS::convertToAudio(string text, int samplingRate){
-	//int time = ofGetElapsedTimeMicros();
+	TTSData data;
+	data.processingTime = ofGetElapsedTimeMicros();
 	festival_text_to_wave(text.c_str(),wave);
-	//time = ofGetElapsedTimeMicros() - time;
 
 	if(samplingRate!=-1) wave.resample(samplingRate);
 	soundBuffer.copyFrom(&wave.values()(0,0),wave.length(),wave.num_channels(),wave.sample_rate());
-	/*float speed = float(soundBuffer.getSampleRate())/44100.;
-	soundBuffer.resample(speed);*/
-	TTSData data;
 	data.buffer = &soundBuffer;
 	data.text = text;
+	data.processingTime = ofGetElapsedTimeMicros() - data.processingTime;
+
 	ofNotifyEvent(newSoundE,data);
 }
 

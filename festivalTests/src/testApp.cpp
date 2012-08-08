@@ -54,6 +54,20 @@ void testApp::setup(){
 	ofBackground(255);
 	ofSetColor(0);
 	ofEnableAlphaBlending();
+
+	ofDirectory dir("www");
+	dir.listDir();
+	dir.sort();
+	for(unsigned int i=0;i<dir.size();i++){
+		alreadyAnalyzed.push_back( dir.getName(i) );
+	}
+	ofFile lastServedStored("lastServed");
+	if(lastServedStored.exists()){
+		lastServedStored >> lastServed;
+	}else{
+		lastServed=0;
+	}
+
 	cairoScreenshot = ofPtr<ofCairoRenderer>(new ofCairoRenderer);
 
     AA.setup(44100);
@@ -85,6 +99,7 @@ void testApp::setup(){
 	httpServer->setCallbackExtension("of");	 // extension of urls that aren't files but will generate a post or get event
 	ofAddListener(httpServer->getEvent,this,&testApp::getRequest);
 	ofAddListener(httpServer->postEvent,this,&testApp::postRequest);
+	httpServer->setMaxNumberClients(100);
 	httpServer->start(8888);
 
 	wave.setMode(ofPath::PATHS);
@@ -106,7 +121,12 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			return;
 		}
 		string text = response.requestFields["text"];
-		if(threaded){
+		string type;
+		if(response.requestFields.find("type")!=response.requestFields.end()){
+			type = response.requestFields["type"];
+		}
+
+		if(threaded && type==""){
 			tts.addText(text);
 		}else{
 			if(!initialized){
@@ -121,10 +141,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			computeMessageColors();
 			time = ofGetElapsedTimeMicros() - time;
 
-			string type;
-			if(response.requestFields.find("type")!=response.requestFields.end()){
-				type = response.requestFields["type"];
-			}else{
+			if(type==""){
 				type = "json";
 			}
 
@@ -151,26 +168,24 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_JPEG);
 				response.contentType = "image/jpeg";
 			}else{
-				ofxJSONElement json;
-				json["text"] = text;
-				json["durationms"] = (int)soundBuffer.getDuration();
-				json["colorsamplems"] = (int)(soundBuffer.getDuration()/colorsForMessage.size());
-				json["colorsampleroundms"] = (int)round(float(soundBuffer.getDuration())/float(colorsForMessage.size()));
-				json["numsamples"] = (int)colorsForMessage.size();
-				json["timeprocessingus"] = (int)time;
-				Json::Value colors;
-				for(int i=0;i<(int)colorsForMessage.size();i++){
-					Json::Value color;
-					color[0] = (int)colorsForMessage[i].r;
-					color[1] = (int)colorsForMessage[i].g;
-					color[2] = (int)colorsForMessage[i].b;
-					colors[i] = color;
-				}
-				json["colors"] = colors;
-				response.response = json.getRawString(true);
+				response.response = json.getJSON(text,soundBuffer,colorsForMessage,time);
 				response.contentType = "application/json";
 			}
 		}
+	}else if(response.url=="/nextAnalized.of"){
+		mutex.lock();
+		if(lastServed >= alreadyAnalyzed.size()){
+			response.errCode = 404;
+			mutex.unlock();
+			return;
+		}
+		string path = alreadyAnalyzed[lastServed];
+		lastServed++;
+		ofFile lastServedStored("lastServed",ofFile::WriteOnly);
+		lastServedStored << lastServed;
+		mutex.unlock();
+		ofFile jsonFile("www/" + path);
+		jsonFile >> response.response;
 	}
 }
 
@@ -181,14 +196,19 @@ void testApp::postRequest(ofxHTTPServerResponse & response){
 
 //--------------------------------------------------------------
 void testApp::newSoundBuffer(const TTSData & tts){
-	mutex.lock();
+	if(!headless) mutex.lock();
+	unsigned long time = ofGetElapsedTimeMicros();
 	soundBuffer = *tts.buffer;
 	computeMessageColors();
-	generateWave();
-	//string path = ofGetTimestampString()+"_"+tts.text+".svg";
-	//saveWave(path,tts.text,wave,colorsForMessage);
+	if(!headless) generateWave();
+	time = ofGetElapsedTimeMicros() - time + tts.processingTime;
+	string path = ofGetTimestampString()+".json";
+	if(headless) mutex.lock();
 	lastText = tts.text;
+	alreadyAnalyzed.push_back(path);
 	mutex.unlock();
+	ofFile jsonFile("www/" + path,ofFile::WriteOnly);
+	jsonFile << json.getJSON(tts.text,soundBuffer,colorsForMessage,time);
 }
 
 //--------------------------------------------------------------

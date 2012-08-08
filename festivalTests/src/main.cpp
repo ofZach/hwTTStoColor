@@ -8,7 +8,7 @@ int main(  int argc, char *argv[]  ){
 
 	testApp * app = new testApp;
 	app->headless = false;
-	app->threaded = false;
+	app->threaded = true;
 	for(int i=1;i<argc;i++){
 		string arg = argv[i];
 		if(arg.find("--")==0){
@@ -16,8 +16,8 @@ int main(  int argc, char *argv[]  ){
 			if(arg=="headless"){
 				app->headless = true;
 			}
-			if(arg=="threaded"){
-				app->threaded = true;
+			if(arg=="notthreaded"){
+				app->threaded = false;
 			}
 			if(arg=="service"){
 				ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),".tts.pid"),ofFile::WriteOnly);

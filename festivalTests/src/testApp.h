@@ -4,6 +4,7 @@
 #include "ofxHTTPServer.h"
 #include "TTS.h"
 #include "audioToColorMapper.h"
+#include "JSONExporter.h"
 
 class testApp : public ofBaseApp{
 
@@ -57,4 +58,8 @@ class testApp : public ofBaseApp{
         audioToColorMapper ACM;
         audioAnaylzer AA;
         audioAnalysisFrame aaFrameTemp;
+
+        JSONExporter json;
+        unsigned int lastServed;
+        vector<string> alreadyAnalyzed;
 };

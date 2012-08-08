@@ -21,6 +21,7 @@ class TTSData{
 public:
 	ofSoundBuffer * buffer;
 	string text;
+	int processingTime;
 };
 
 class TTS: public ofThread {
