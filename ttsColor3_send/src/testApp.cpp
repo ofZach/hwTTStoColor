@@ -1,43 +1,6 @@
 #include "testApp.h"
 #include "sndfile.hh"
 
-ofPoint midiColor;
-
-
-//#ifdef XBEE_SEND
-
-
-
-
-void testApp::newMidiMessage(ofxMidiMessage& msg) {
-    
-    midiMessage = msg;
-    //cout << msg.value << endl;
-    //cout << msg.control << endl;
-    if (msg.control == 0){
-        midiColor.x = ofMap(msg.value, 0,127,0,253, true);
-        //printf("adjusting red\n");
-        //balloonTarget.r = ofMap(msg.value, 0,127,0,255, true);
-    }
-    
-    if (msg.control == 1){
-        printf("adjusting green\n");
-        midiColor.y = ofMap(msg.value, 0,127,0,253, true);
-        //balloonTarget.g = ofMap(msg.value, 0,127,0,255, true);
-    }
-    
-    if (msg.control == 2){
-        printf("adjusting blue\n");
-        midiColor.z = ofMap(msg.value, 0,127,0,253, true);
-        //balloonTarget.b = ofMap(msg.value, 0,127,0,255, true);
-    }
-    
-}
-
-
-
-
-//#endif
 
 
 //--------------------------------------------------------------
@@ -64,11 +27,11 @@ void testApp::setup(){
     GUI.addSlider("fadeToBlack", ofRectangle(10,340+120,180,30), 0,1,1, &fadeToBlack);
     
     
+       AAtemp.setup(44100);
     
     
-    
-    GUI.addSlider("delay", ofRectangle(10,340+160,180,30), 0,200,10, &XBC.delay);
-    GUI.addSlider("balloonFade", ofRectangle(10,340+200,180,30), 0,255,10, &XBC.balloonFade);
+    //GUI.addSlider("delay", ofRectangle(10,340+160,180,30), 0,200,10, &XBC.delay);
+    //GUI.addSlider("balloonFade", ofRectangle(10,340+200,180,30), 0,255,10, &XBC.balloonFade);
     
     
     
@@ -88,29 +51,6 @@ void testApp::setup(){
     ofSetFrameRate(30);
     
     
-    
-    
-    // ------- midi 
-    
-    // print input ports to console
-    midiIn.listPorts();
-    
-    // open port by number
-    midiIn.openPort(0);
-    //midiIn.openPort("IAC Pure Data In");	// by name
-    //midiIn.openVirtualPort("ofxMidiIn Input");	// open a virtual port
-    
-    // don't ignore sysex, timing, & active sense messages,
-    // these are ignored by default
-    midiIn.ignoreTypes(false, false, false);
-    
-    // add testApp as a listener
-    midiIn.addListener(this);
-    
-    // print received messages to the console
-    midiIn.setVerbose(true);
-    
-    midiColor.set(0,0,0);
     
    
 }
@@ -208,6 +148,96 @@ void testApp::draw(){
         ofLine(i,0,i,10);
     }
     
+    ofNoFill();
+    
+    /*
+    // ----------------------------
+    // draw the brightness ramp, store in a polyline
+    ofPolyline temp;
+    ofSetColor(0,0,0);
+    ofBeginShape();
+    for (int i = 0; i < brightnessMessage.size(); i++){
+        ofVertex(i, ofMap(brightnessMessage[i],0,255,10,30, true));
+        temp.addVertex(ofPoint(i, ofMap(brightnessMessage[i], 0,255,0,1, true)));
+        //cout << ofMap(brightnessMessage[i], 255,0,1,0) << endl;
+    }
+    ofEndShape();
+    
+    ofEnableAlphaBlending();
+    ofPolyline resample = temp; //.getResampledByCount(150);
+    ofSetColor(255,0,0, 80);
+    
+    // ----------------------------
+    // resmaple
+    vector < float > resampleF;
+    for (int i = 0; i < resample.getVertices().size(); i++){
+        resampleF.push_back(resample.getVertices()[i].y);
+    }
+    
+    // ----------------------------
+    // convert to spline info. 
+    splineInfo inf = SC.splineFromData(resampleF,  80);
+    
+    // ----------------------------
+    // get data back from spline. 
+    vector < ofPoint > ptsBack = SC.dataFromSpline(inf);
+    
+    // ----------------------------
+    // draw that. 
+    ofPushMatrix();
+    //ofTranslate(0,90);
+    float scale = (float)brightnessMessage.size() / (float)resample.size();
+    ofScale(scale, 1, 1);
+    ofSetColor(0,0,255);
+    ofBeginShape();
+    for (int i = 0; i < ptsBack.size(); i++){
+        ofVertex(ptsBack[i].x, ofMap(ptsBack[i].y,0,1,10,40, true));
+    }
+    ofEndShape();
+    ofPopMatrix();
+    
+    
+    
+   
+    
+    
+    ofSetColor(0,0,0);
+    ofBeginShape();
+    temp.clear();
+    for (int i = 0; i < hueDiffMessage.size(); i++){
+        ofVertex(i, ofMap(hueDiffMessage[i],-ACM.hueRange,ACM.hueRange,50,100));
+        temp.addVertex(ofPoint(i,ofMap(hueDiffMessage[i],-ACM.hueRange,ACM.hueRange,0,1)));
+        //cout << "? " << ofMap(hueDiffMessage[i],-ACM.hueRange,ACM.hueRange,0,1) << endl;
+    }
+    ofEndShape();
+    
+    resample = temp; //.getResampledByCount(150);
+    
+    resampleF.clear();
+    for (int i = 0; i < resample.getVertices().size(); i++){
+        resampleF.push_back(resample.getVertices()[i].y);
+    }
+
+    
+    inf = SC.splineFromData(resampleF, 80);
+    ptsBack = SC.dataFromSpline(inf);
+    
+    
+    // ----------------------------
+    // draw that. 
+    ofPushMatrix();
+    //ofTranslate(0,90);
+    scale = (float)hueDiffMessage.size() / (float)resample.size();
+    ofScale(scale, 1, 1);
+    ofSetColor(0,255,255);
+    ofBeginShape();
+    for (int i = 0; i < ptsBack.size(); i++){
+        //cout << ptsBack[i].y << endl;
+        ofVertex(ptsBack[i].x, 50 + ofMap(ptsBack[i].y,0,1,50,100, false));
+    }
+    ofEndShape();
+    ofPopMatrix();
+    */
     
 }
 
@@ -300,13 +330,15 @@ void testApp::audioRequested (float * output, int bufferSize, int nChannels){
 
 void testApp::computeMessageColors(){
     
+    
     colorsForMessage.clear();
+    
+    brightnessMessage.clear();
+    hueDiffMessage.clear();
     
     float samples[256];
     
     audioAnalysisFrame aaFrameTemp;
-    audioAnaylzer AAtemp;
-    AAtemp.setup(44100);
     audioToColorMapper ACMtemp;
     ACMtemp.setup();
     ACMtemp = ACM;
@@ -324,8 +356,43 @@ void testApp::computeMessageColors(){
         AAtemp.analyzeFrame(samples, bufferSize, aaFrameTemp);
         colorAltered = ACMtemp.update(aaFrameTemp, color);
         colorsForMessage.push_back(colorAltered);
+        
+        brightnessMessage.push_back(ofMap(colorAltered.getBrightness() - color.getBrightness(), 0, 255, 0,1));
+        hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACM.hueRange, ACM.hueRange, 0,1));
+        
     }
 
+    
+    // now, let's do some spline fitting!
+    
+    
+    splineInfo splineBriInfo = SC.splineFromData(brightnessMessage,  80);
+    splineInfo splineHueInfo = SC.splineFromData(hueDiffMessage,  80);
+    
+    // print out info!
+    printf("\n");
+    printf("\n");
+
+    printf("bri: \n");
+    printf("splineInfo: %f, %f, %i, %i  \n", splineBriInfo.DX, splineBriInfo.mean, (int)splineBriInfo.xmin, (int)splineBriInfo.xmax);
+    printf("coefficients: ");
+    for (int i = 0; i <= splineBriInfo.M; i++){
+        printf("%f", splineBriInfo.coefficients[i]);
+        if (i != splineBriInfo.M) printf(",");
+    }
+    printf("\n");
+    printf("\n");
+    printf("hue: \n");
+    printf("splineInfo: %f, %f, %i, %i  \n", splineHueInfo.DX, splineHueInfo.mean, (int)splineHueInfo.xmin, (int)splineHueInfo.xmax);
+    printf("coefficients: ");
+    for (int i = 0; i <= splineHueInfo.M; i++){
+        printf("%f", splineHueInfo.coefficients[i]);
+        if (i != splineHueInfo.M) printf(",");
+    }
+    printf("\n");
+    printf("\n");
+
+    
     
 }
 

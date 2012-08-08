@@ -27,6 +27,10 @@
 		112062CE15CF2ABA009DE2E8 /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 112062C815CF2ABA009DE2E8 /* tinyxmlparser.cpp */; };
 		112062CF15CF2ABA009DE2E8 /* ofxXmlSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 112062CA15CF2ABA009DE2E8 /* ofxXmlSettings.cpp */; };
 		112062D115CF3123009DE2E8 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 112062D015CF3123009DE2E8 /* CoreMIDI.framework */; };
+		114D3A9D15D1684F00BCE1A0 /* splineConverter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 114D3A9C15D1684E00BCE1A0 /* splineConverter.cpp */; };
+		114D3AA615D16BD100BCE1A0 /* BSpline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 114D3AA115D16BD100BCE1A0 /* BSpline.cpp */; };
+		114D3AA715D16BD100BCE1A0 /* BSplineBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 114D3AA315D16BD100BCE1A0 /* BSplineBase.cpp */; };
+		114D3AA815D16BD100BCE1A0 /* BSplineLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 114D3AA515D16BD100BCE1A0 /* BSplineLib.cpp */; };
 		11798E1115AAFFF900ABF68F /* CocoaApplicationHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 11798DF615AAFFF900ABF68F /* CocoaApplicationHandler.cpp */; };
 		11798E1215AAFFF900ABF68F /* CocoaImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 11798DF915AAFFF900ABF68F /* CocoaImplementation.m */; };
 		11798E1315AAFFF900ABF68F /* CocoaMainWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 11798DFA15AAFFF900ABF68F /* CocoaMainWindow.cpp */; };
@@ -161,6 +165,14 @@
 		112062CA15CF2ABA009DE2E8 /* ofxXmlSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxXmlSettings.cpp; sourceTree = "<group>"; };
 		112062CB15CF2ABA009DE2E8 /* ofxXmlSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxXmlSettings.h; sourceTree = "<group>"; };
 		112062D015CF3123009DE2E8 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = ../../../../../../../../System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<group>"; };
+		114D3A9C15D1684E00BCE1A0 /* splineConverter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = splineConverter.cpp; sourceTree = "<group>"; };
+		114D3A9E15D1685E00BCE1A0 /* splineConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = splineConverter.h; sourceTree = "<group>"; };
+		114D3AA015D16BD100BCE1A0 /* BandedMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BandedMatrix.h; sourceTree = "<group>"; };
+		114D3AA115D16BD100BCE1A0 /* BSpline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BSpline.cpp; sourceTree = "<group>"; };
+		114D3AA215D16BD100BCE1A0 /* BSpline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSpline.h; sourceTree = "<group>"; };
+		114D3AA315D16BD100BCE1A0 /* BSplineBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BSplineBase.cpp; sourceTree = "<group>"; };
+		114D3AA415D16BD100BCE1A0 /* BSplineBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSplineBase.h; sourceTree = "<group>"; };
+		114D3AA515D16BD100BCE1A0 /* BSplineLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BSplineLib.cpp; sourceTree = "<group>"; };
 		11798DF415AAFFF900ABF68F /* ApplicationHandlerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationHandlerInterface.h; sourceTree = "<group>"; };
 		11798DF615AAFFF900ABF68F /* CocoaApplicationHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CocoaApplicationHandler.cpp; sourceTree = "<group>"; };
 		11798DF715AAFFF900ABF68F /* CocoaApplicationHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaApplicationHandler.h; sourceTree = "<group>"; };
@@ -476,6 +488,19 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		114D3A9F15D16BD100BCE1A0 /* bspline */ = {
+			isa = PBXGroup;
+			children = (
+				114D3AA015D16BD100BCE1A0 /* BandedMatrix.h */,
+				114D3AA115D16BD100BCE1A0 /* BSpline.cpp */,
+				114D3AA215D16BD100BCE1A0 /* BSpline.h */,
+				114D3AA315D16BD100BCE1A0 /* BSplineBase.cpp */,
+				114D3AA415D16BD100BCE1A0 /* BSplineBase.h */,
+				114D3AA515D16BD100BCE1A0 /* BSplineLib.cpp */,
+			);
+			path = bspline;
+			sourceTree = "<group>";
+		};
 		11798DF215AAFFF900ABF68F /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -593,11 +618,14 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				114D3A9F15D16BD100BCE1A0 /* bspline */,
 				1120625B15CF1604009DE2E8 /* mapping */,
 				1120621815CF15D1009DE2E8 /* audio */,
 				1120620A15CEEF89009DE2E8 /* xbee */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
+				114D3A9C15D1684E00BCE1A0 /* splineConverter.cpp */,
+				114D3A9E15D1685E00BCE1A0 /* splineConverter.h */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
 			);
 			path = src;
@@ -721,6 +749,10 @@
 				112062CD15CF2ABA009DE2E8 /* tinyxmlerror.cpp in Sources */,
 				112062CE15CF2ABA009DE2E8 /* tinyxmlparser.cpp in Sources */,
 				112062CF15CF2ABA009DE2E8 /* ofxXmlSettings.cpp in Sources */,
+				114D3A9D15D1684F00BCE1A0 /* splineConverter.cpp in Sources */,
+				114D3AA615D16BD100BCE1A0 /* BSpline.cpp in Sources */,
+				114D3AA715D16BD100BCE1A0 /* BSplineBase.cpp in Sources */,
+				114D3AA815D16BD100BCE1A0 /* BSplineLib.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
