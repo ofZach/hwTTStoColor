@@ -27,15 +27,16 @@ void TTS::start(){
 void TTS::convertToAudio(string text, int samplingRate){
 	TTSData data;
 	data.processingTime = ofGetElapsedTimeMicros();
-	festival_text_to_wave(text.c_str(),wave);
+	festival_wait_for_spooler();
+	if(festival_text_to_wave(text.c_str(),wave)){
+		if(samplingRate!=-1) wave.resample(samplingRate);
+		soundBuffer.copyFrom(&wave.values()(0,0),wave.length(),wave.num_channels(),wave.sample_rate());
+		data.buffer = &soundBuffer;
+		data.text = text;
+		data.processingTime = ofGetElapsedTimeMicros() - data.processingTime;
 
-	if(samplingRate!=-1) wave.resample(samplingRate);
-	soundBuffer.copyFrom(&wave.values()(0,0),wave.length(),wave.num_channels(),wave.sample_rate());
-	data.buffer = &soundBuffer;
-	data.text = text;
-	data.processingTime = ofGetElapsedTimeMicros() - data.processingTime;
-
-	ofNotifyEvent(newSoundE,data);
+		ofNotifyEvent(newSoundE,data);
+	}
 }
 
 void TTS::addText(string text){
