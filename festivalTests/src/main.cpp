@@ -20,7 +20,7 @@ int main(  int argc, char *argv[]  ){
 				app->threaded = true;
 			}
 			if(arg=="service"){
-				ofFile pidFile(ofFilePath::getUserHomeDir()+".tts.pid",ofFile::WriteOnly);
+				ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),".tts.pid"),ofFile::WriteOnly);
 				pidFile << getpid() << endl;
 				app->headless = true;
 				ofSetDataPathRoot("/var/www/");
