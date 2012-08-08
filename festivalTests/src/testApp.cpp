@@ -120,9 +120,6 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			soundBuffer = tts.soundBuffer;
 			computeMessageColors();
 			time = ofGetElapsedTimeMicros() - time;
-			generateWave();
-			if(!headless) mutex.unlock();
-			cout << "analysis took " << time << "us" << endl;
 
 			string type;
 			if(response.requestFields.find("type")!=response.requestFields.end()){
@@ -130,6 +127,13 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			}else{
 				type = "json";
 			}
+
+			if(!headless || type!="json"){
+				generateWave();
+			}
+
+			if(!headless) mutex.unlock();
+
 			if(type == "svg"){
 				saveWave(ofCairoRenderer::SVG);
 				response.response = cairoScreenshot->getContentBuffer();
@@ -153,6 +157,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				json["colorsamplems"] = (int)(soundBuffer.getDuration()/colorsForMessage.size());
 				json["colorsampleroundms"] = (int)round(float(soundBuffer.getDuration())/float(colorsForMessage.size()));
 				json["numsamples"] = (int)colorsForMessage.size();
+				json["timeprocessingus"] = (int)time;
 				Json::Value colors;
 				for(int i=0;i<(int)colorsForMessage.size();i++){
 					Json::Value color;
