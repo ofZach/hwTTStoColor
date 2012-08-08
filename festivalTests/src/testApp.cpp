@@ -174,15 +174,15 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 		}
 	}else if(response.url=="/nextAnalized.of"){
 		mutex.lock();
-		if(lastServed >= alreadyAnalyzed.size()){
+		/*if(lastServed >= alreadyAnalyzed.size()){
 			response.errCode = 404;
 			mutex.unlock();
 			return;
-		}
-		string path = alreadyAnalyzed[lastServed];
-		lastServed++;
+		}*/
+		string path = alreadyAnalyzed[ofRandom(alreadyAnalyzed.size())];
+		/*lastServed++;
 		ofFile lastServedStored("lastServed",ofFile::WriteOnly);
-		lastServedStored << lastServed;
+		lastServedStored << lastServed;*/
 		mutex.unlock();
 		ofFile jsonFile("www/" + path);
 		jsonFile >> response.response;
