@@ -58,6 +58,8 @@ ofColor audioToColorMapper::update(audioAnalysisFrame aaFrame, ofColor color){
     if (temp.getNormalized() > temp.threshold) t = 1;
     else t = 0;
     
+    //cout << volumeSmoothing << endl;
+    
     volumeSmooth = volumeSmoothing * volumeSmooth + (1-volumeSmoothing) * aaFrame.volume;
     
     volume.push_back(volumeSmooth);

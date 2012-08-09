@@ -4,14 +4,12 @@
 #include "ofxNativeGui.h"
 #include "audioAnalyzer.h"
 #include "audioToColorMapper.h"
-#include "ofxXmlSettings.h"
-#include "ofxMidi.h"
-#include "xbeeController.h"
+
+#include "splineConverter.h"
 
 
 
-
-class testApp : public ofBaseApp, public ofxNativeGuiEventInterface,  public ofxMidiListener  {
+class testApp : public ofBaseApp, public ofxNativeGuiEventInterface  {
 
 	public:
 		void setup();
@@ -37,36 +35,35 @@ class testApp : public ofBaseApp, public ofxNativeGuiEventInterface,  public ofx
         audioAnaylzer AA;
     
     
-    
         // for playing audio that's been saved out: 
         float * left;
         vector < float > audioSamples;
         bool bPlaying;
         int counter;
         
-    
         audioAnalysisFrame aaFrame;
         
         audioToColorMapper ACM;
-        xbeeController XBC;
-        
         
         ofColor color;
         
         float fadeToBlack;
         float fadeActiveVal;
     
-        void newMidiMessage(ofxMidiMessage& eventArgs);
-        ofxMidiIn	midiIn;
-        ofxMidiMessage midiMessage;
         
-        
-       
         ofColor colorAltered;
-        
         vector < ofColor > colorsForMessage;
         void computeMessageColors();
     
+        audioAnaylzer AAtemp;
+
+
+        vector < float > brightnessMessage;
+        vector < float > hueDiffMessage;
+        splineInfo splineBriInfo;
+        splineInfo splineHueInfo;
     
+        splineConverter SC;
+        
         
 };
