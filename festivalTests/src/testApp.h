@@ -5,6 +5,7 @@
 #include "TTS.h"
 #include "audioToColorMapper.h"
 #include "JSONExporter.h"
+#include "splineConverter.h"
 
 class testApp : public ofBaseApp{
 
@@ -62,4 +63,11 @@ class testApp : public ofBaseApp{
         JSONExporter json;
         unsigned int lastServed;
         vector<string> alreadyAnalyzed;
+
+        vector < float > brightnessMessage;
+        vector < float > hueDiffMessage;
+        splineInfo splineBriInfo;
+        splineInfo splineHueInfo;
+
+        splineConverter SC;
 };

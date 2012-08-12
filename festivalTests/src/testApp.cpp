@@ -1,9 +1,9 @@
 #include "testApp.h"
-#include <festival.h>
 #include "ofCairoRenderer.h"
 #include "ofFileUtils.h"
 #include "audioAnalyzer.h"
 #include "ofxJSONElement.h"
+#include "Poco/Base64Encoder.h"
 
 //--------------------------------------------------------------
 void testApp::saveWave(ofCairoRenderer::Type type){
@@ -20,15 +20,16 @@ void testApp::saveWave(ofCairoRenderer::Type type){
 	draw();
 	cairoScreenshot->close();
 	ofSetCurrentRenderer(storedRenderer);
+
 	//ofFile index("www/index.html",ofFile::Append);
 	//index << ("<a href=\"" + path + "\">"+path+"</a><br/>") ;
 }
 
 void testApp::computeMessageColors(){
-    colorsForMessage.clear();
-
     int bufferSize = 256;
-    //float samples[bufferSize];
+	colorsForMessage.clear();
+	brightnessMessage.clear();
+	hueDiffMessage.clear();
 
     ofColor color;
     float hue = ofRandom(0,255);
@@ -36,15 +37,21 @@ void testApp::computeMessageColors(){
     float bri = ofRandom(220,238);
     color.setHsb(hue, sat, bri);
 
+	unsigned int audioCounter = 0;
+	soundBuffer.resize(soundBuffer.size()+(256-(soundBuffer.size()%256)),0);
+	while (audioCounter < soundBuffer.size()){
+		AA.analyzeFrame(&soundBuffer[audioCounter], bufferSize, aaFrameTemp);
+		const ofColor & colorAltered = ACM.update(aaFrameTemp, color);
+		colorsForMessage.push_back(colorAltered);
+		brightnessMessage.push_back(ofMap(colorAltered.getBrightness() - color.getBrightness(), 0, 255, 0,1));
+		hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACM.hueRange, ACM.hueRange, 0,1));
+		audioCounter+=bufferSize;
+	}
 
-    unsigned int audioCounter = 0;
-    soundBuffer.resize(soundBuffer.size()+(256-(soundBuffer.size()%256)),0);
-    while (audioCounter < soundBuffer.size()){
-        AA.analyzeFrame(&soundBuffer[audioCounter], bufferSize, aaFrameTemp);
-        const ofColor & colorAltered = ACM.update(aaFrameTemp, color);
-        colorsForMessage.push_back(colorAltered);
-    	audioCounter+=bufferSize;
-    }
+
+	// now, let's do some spline fitting!
+	splineBriInfo = SC.splineFromData(brightnessMessage,  80);
+	splineHueInfo = SC.splineFromData(hueDiffMessage,  80);
 }
 
 
@@ -130,15 +137,17 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			tts.addText(text);
 		}else{
 			if(!initialized){
-				festival_initialize(1,210000);
+				tts.initialize();
 				initialized = true;
 			}
 			unsigned long time = ofGetElapsedTimeMicros();
 			lastText = text;
-			tts.convertToAudio(text,44100);
+			TTSData data = tts.convertToAudio(text,44100);
 			if(!headless) mutex.lock();
-			soundBuffer = tts.soundBuffer;
-			computeMessageColors();
+			if(data.buffer){
+				soundBuffer = *data.buffer;
+				computeMessageColors();
+			}
 			time = ofGetElapsedTimeMicros() - time;
 
 			if(type==""){
@@ -168,11 +177,19 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_JPEG);
 				response.contentType = "image/jpeg";
 			}else{
-				response.response = json.getJSON(text,soundBuffer,colorsForMessage,time);
+				response.response = json.getJSON(text,soundBuffer,colorsForMessage,splineBriInfo,splineHueInfo,time);
 				response.contentType = "application/json";
 			}
 		}
 	}else if(response.url=="/nextAnalized.of"){
+		if(response.requestFields.find("type")!=response.requestFields.end()){
+			stringstream o;
+			Poco::Base64Encoder encoder(o);
+			encoder << "abcdefghijklmnopqrstuvwz0987654321a";
+			encoder.close();
+			response.response.set(o);
+			return;
+		}
 		mutex.lock();
 		/*if(lastServed >= alreadyAnalyzed.size()){
 			response.errCode = 404;
@@ -208,7 +225,7 @@ void testApp::newSoundBuffer(const TTSData & tts){
 	alreadyAnalyzed.push_back(path);
 	mutex.unlock();
 	ofFile jsonFile("www/" + path,ofFile::WriteOnly);
-	jsonFile << json.getJSON(tts.text,soundBuffer,colorsForMessage,time);
+	jsonFile << json.getJSON(tts.text,soundBuffer,colorsForMessage,splineBriInfo,splineHueInfo,time);
 }
 
 //--------------------------------------------------------------
@@ -251,6 +268,7 @@ void testApp::generateWave(){
 //--------------------------------------------------------------
 void testApp::draw(){
 	mutex.lock();
+	ofFill();
 	ofSetColor(0);
 	ofDrawBitmapString(lastText,10,10);
 	wave.draw();
@@ -267,7 +285,63 @@ void testApp::draw(){
 			//ofLine(i,ofGetHeight()-10,i,ofGetHeight());
 		}
 	}
+
 	//audioVisualizer.draw();
+	ofNoFill();
+
+
+	// ----------------------------
+	// draw the brightness ramp, store in a polyline
+	if(!brightnessMessage.empty()){
+		ofSetColor(0,0,0);
+		float width = float(ofGetWidth())/float(brightnessMessage.size());
+		ofBeginShape();
+		for (int i = 0; i < brightnessMessage.size(); i++){
+			ofVertex(i*width, ofGetHeight()-ofMap(brightnessMessage[i],0,1,50,80));
+		}
+		ofEndShape();
+
+		// ----------------------------
+		// get data back from spline.
+		vector < ofPoint > ptsBack = SC.dataFromSpline(splineBriInfo);
+		width = float(ofGetWidth())/float(ptsBack.size());
+		// ----------------------------
+		// draw that.
+		ofSetColor(0,0,255);
+		ofBeginShape();
+		for (int i = 0; i < ptsBack.size(); i++){
+			ofVertex(ptsBack[i].x*width, ofGetHeight()-ofMap(ptsBack[i].y,0,1,50,90));
+		}
+		ofEndShape();
+	}
+
+
+
+	// ----------------------------
+	// draw the hue ramp,
+	/*if(!hueDiffMessage.empty()){
+		ofSetColor(0,0,0);
+		float width = float(ofGetWidth())/float(hueDiffMessage.size());
+		ofBeginShape();
+		for (int i = 0; i < hueDiffMessage.size(); i++){
+			ofVertex(i*width, ofGetHeight()-ofMap(hueDiffMessage[i],0,1,90,130));
+		}
+		ofEndShape();
+
+		// ----------------------------
+		// get data back from spline.
+		vector < ofPoint > ptsBack = SC.dataFromSpline(splineHueInfo);
+		width = float(ofGetWidth())/float(ptsBack.size());
+
+		// ----------------------------
+		// draw that.
+		ofSetColor(0,0,255);
+		ofBeginShape();
+		for (int i = 0; i < ptsBack.size(); i++){
+			ofVertex(ptsBack[i].x*width, 20+ ofMap(ptsBack[i].y,0,1,90,140));
+		}
+		ofEndShape();
+	}*/
 	mutex.unlock();
 }
 

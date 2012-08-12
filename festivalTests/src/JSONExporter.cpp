@@ -12,9 +12,12 @@ JSONExporter::JSONExporter() {
 
 }
 
-string JSONExporter::getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, int time){
+string JSONExporter::getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, splineInfo & splineBriInfo, splineInfo & splineHueInfo, int time){
 	json.clear();
 	colors.clear();
+	splineBriCoeffs.clear();
+	splineHueCoeffs.clear();
+
 	json["text"] = text;
 	json["durationms"] = (int)soundBuffer.getDuration();
 	json["colorsamplems"] = (int)(soundBuffer.getDuration()/colorsForMessage.size());
@@ -28,5 +31,28 @@ string JSONExporter::getJSON(string text, ofSoundBuffer & soundBuffer, vector<of
 		colors[i] = color;
 	}
 	json["colors"] = colors;
+
+	splineBri["DX"] = splineBriInfo.DX;
+	splineBri["mean"] = splineBriInfo.mean;
+	splineBri["xmin"] = (int)splineBriInfo.xmin;
+	splineBri["xmax"] = (int)splineBriInfo.xmax;
+	for (int i = 0; i <= splineBriInfo.M; i++){
+		splineBriCoeffs[i] = splineBriInfo.coefficients[i];
+	}
+	splineBri["coeffs"] = splineBriCoeffs;
+
+	json["splineBri"] = splineBri;
+
+	splineHue["DX"] = splineHueInfo.DX;
+	splineHue["mean"] = splineHueInfo.mean;
+	splineHue["xmin"] = (int)splineHueInfo.xmin;
+	splineHue["xmax"] = (int)splineHueInfo.xmax;
+	for (int i = 0; i <= splineHueInfo.M; i++){
+		splineHueCoeffs[i] = splineHueInfo.coefficients[i];
+	}
+	splineHue["coeffs"] = splineHueCoeffs;
+
+	json["splineHue"] = splineHue;
+
 	return json.getRawString(true);
 }

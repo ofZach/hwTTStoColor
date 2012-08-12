@@ -12,17 +12,19 @@
 #include "ofSoundBuffer.h"
 #include "ofConstants.h"
 #include "ofColor.h"
+#include "splineConverter.h"
 
 class JSONExporter {
 public:
 	JSONExporter();
 
-	string getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, int time);
+	string getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, splineInfo & splineBriInfo, splineInfo & splineHueInfo, int time);
 
 private:
 	ofxJSONElement json;
 	Json::Value colors;
 	Json::Value color;
+	Json::Value splineBri, splineHue, splineBriCoeffs, splineHueCoeffs;
 };
 
 #endif /* JSONEXPORTER_H_ */
