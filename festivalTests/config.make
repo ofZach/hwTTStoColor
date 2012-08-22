@@ -10,8 +10,8 @@ OF_ROOT = ../../..
 # for example search paths like:
 # USER_CFLAGS = -I src/objects
 
-USER_CFLAGS = -I/usr/include/festival -I/usr/include/speech_tools
-#USER_CFLAGS = $(shell pkg-config pocketsphinx --cflags) 
+#USER_CFLAGS = -I/usr/include/festival -I/usr/include/speech_tools
+USER_CFLAGS = -I/usr/include/flite
 USER_CFLAGS += $(addprefix -I, $(shell find ../common -type d)) $(shell pkg-config jsoncpp --cflags)
 
 
@@ -19,8 +19,9 @@ USER_CFLAGS += $(addprefix -I, $(shell find ../common -type d)) $(shell pkg-conf
 # for example libraries like:
 # USER_LDFLAGS = libs/libawesomelib.a
 
-USER_LDFLAGS = -lFestival -lestools -lestbase -leststring
-#USER_LDFLAGS = $(shell pkg-config pocketsphinx --libs) 
+#USER_LDFLAGS = -lFestival -lestools -lestbase -leststring
+USER_LDFLAGS = -lflite_cmu_us_kal -lflite_cmu_time_awb -lflite_cmu_us_kal16 -lflite_cmu_us_awb -lflite_cmu_us_rms -lflite_cmu_us_slt -lflite_usenglish -lflite_cmulex -lflite
+ 
 USER_LDFLAGS += $(shell pkg-config jsoncpp --libs)
 
 USER_LIBS = -lgcrypt -laubio 

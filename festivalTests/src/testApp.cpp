@@ -38,20 +38,81 @@ void testApp::computeMessageColors(){
     color.setHsb(hue, sat, bri);
 
 	unsigned int audioCounter = 0;
-	soundBuffer.resize(soundBuffer.size()+(256-(soundBuffer.size()%256)),0);
+	cout << "resizing from " << soundBuffer.size() << " to " << soundBuffer.size()+(bufferSize-(soundBuffer.size()%bufferSize)) << endl;
+	soundBuffer.resize(soundBuffer.size()+(bufferSize-(soundBuffer.size()%bufferSize)),0);
 	while (audioCounter < soundBuffer.size()){
+		/*for(int i=0;i<bufferSize;i++){
+			if(abs(soundBuffer[audioCounter+i])>1) cout << soundBuffer[audioCounter+i] << " at " << audioCounter +i<< "/" << soundBuffer.size() << endl;
+		}*/
 		AA.analyzeFrame(&soundBuffer[audioCounter], bufferSize, aaFrameTemp);
 		const ofColor & colorAltered = ACM.update(aaFrameTemp, color);
-		colorsForMessage.push_back(colorAltered);
-		brightnessMessage.push_back(ofMap(colorAltered.getBrightness() - color.getBrightness(), 0, 255, 0,1));
-		hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACM.hueRange, ACM.hueRange, 0,1));
+        colorsForMessage.push_back(colorAltered);
+        brightnessMessage.push_back(ofMap(colorAltered.getBrightness(), ACM.darkness * 255, 255, 0,1));
+        hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACM.hueRange, ACM.hueRange, 0,1));
 		audioCounter+=bufferSize;
 	}
 
+	float sums[80];
+	for (int i=0;i < 80; i++){
+		bOn[i] = false;
 
+		float pctA = (float)(i) / (81.0f);
+		float pctB = (float)(i+1) / (81.0f);
+
+		int from =  (int)(pctA * brightnessMessage.size());
+		int to =    (int)(pctB * brightnessMessage.size());
+		int howMany =(to- from);
+		float sum = 0;
+		for (int j = from; j < to; j++){
+			sum += brightnessMessage[j];
+		}
+		sum /= (float) howMany;
+
+		sums[i] = sum;
+		//cout << sum << endl;
+		if (sum > 0.5){
+			bOn[i] = true;
+		}
+	}
+
+
+	for (int i = 0; i < 80; i++){
+		float sumSmooth = 0;
+		for (int j = -1; j <= 1; j++){
+
+			int who = ofClamp(i+j, 0, 80-1);
+			sumSmooth += sums[who] / 5.0f;
+
+		}
+
+		if (bOn[i] == true && sums[i] < sumSmooth  && fabs((sums[i] - sumSmooth)) > 0.006){
+			bOn[i] = false;
+		}
+
+		// optional, force some on...
+		if (false){
+			if (bOn[i] == false && sums[i] > sumSmooth  && fabs((sums[i] - sumSmooth)) > 0.006){
+				bOn[i] = true;
+			}
+		}
+
+	}
+
+
+	memset(data,0,30);
+	data[0] = 255;
+	data[1] = 1;
+	data[2] = 127;
+	data[3] = 255;
+	for (int i = 0; i < 10; i++){
+		data[4+i] = 0;
+		for (int j = 0; j < 8; j++){
+			data[4+i] |= bOn[i*8 + j] == true ? (0x01 << (7-j)) : 0;
+		}
+	}
 	// now, let's do some spline fitting!
-	splineBriInfo = SC.splineFromData(brightnessMessage,  80);
-	splineHueInfo = SC.splineFromData(hueDiffMessage,  80);
+	//splineBriInfo = SC.splineFromData(brightnessMessage,  80);
+	//splineHueInfo = SC.splineFromData(hueDiffMessage,  80);
 }
 
 
@@ -176,9 +237,20 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				saveWave(ofCairoRenderer::IMAGE);
 				ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_JPEG);
 				response.contentType = "image/jpeg";
-			}else{
-				response.response = json.getJSON(text,soundBuffer,colorsForMessage,splineBriInfo,splineHueInfo,time);
+			}else if(type=="json"){
+				response.response = json.getJSON(text,soundBuffer,colorsForMessage,time);
 				response.contentType = "application/json";
+			}else{
+				stringstream o;
+				Poco::Base64Encoder encoder(o);
+				for (size_t idx = 0; idx != 30; ++idx){
+					encoder << this->data[idx];
+					cout << (int)this->data[idx] << ", ";
+				}
+				cout << endl;
+				encoder.close();
+				response.response.set(o);
+				return;
 			}
 		}
 	}else if(response.url=="/nextAnalized.of"){
@@ -225,7 +297,7 @@ void testApp::newSoundBuffer(const TTSData & tts){
 	alreadyAnalyzed.push_back(path);
 	mutex.unlock();
 	ofFile jsonFile("www/" + path,ofFile::WriteOnly);
-	jsonFile << json.getJSON(tts.text,soundBuffer,colorsForMessage,splineBriInfo,splineHueInfo,time);
+	jsonFile << json.getJSON(tts.text,soundBuffer,colorsForMessage,time);
 }
 
 //--------------------------------------------------------------
@@ -301,6 +373,7 @@ void testApp::draw(){
 		}
 		ofEndShape();
 
+		/*
 		// ----------------------------
 		// get data back from spline.
 		vector < ofPoint > ptsBack = SC.dataFromSpline(splineBriInfo);
@@ -312,7 +385,7 @@ void testApp::draw(){
 		for (int i = 0; i < ptsBack.size(); i++){
 			ofVertex(ptsBack[i].x*width, ofGetHeight()-ofMap(ptsBack[i].y,0,1,50,90));
 		}
-		ofEndShape();
+		ofEndShape();*/
 	}
 
 

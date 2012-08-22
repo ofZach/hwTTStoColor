@@ -18,7 +18,7 @@ class JSONExporter {
 public:
 	JSONExporter();
 
-	string getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, splineInfo & splineBriInfo, splineInfo & splineHueInfo, int time);
+	string getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, int time);
 
 private:
 	ofxJSONElement json;

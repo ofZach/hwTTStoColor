@@ -9,6 +9,7 @@
 #define TTS_H_
 
 //#define USE_FESTIVAL_SERVER
+#define USE_FLITE
 
 #include "ofConstants.h"
 #include "ofTypes.h"
@@ -20,6 +21,8 @@
 
 #ifdef USE_FESTIVAL_SERVER
 #include "festival_client.h"
+#elif defined(USE_FLITE)
+#include <flite/flite.h>
 #else
 #include <festival.h>
 #endif
@@ -51,6 +54,9 @@ private:
 #ifdef USE_FESTIVAL_SERVER
 	FT_Wave * wave;
 	FT_Info * server;
+#elif defined(USE_FLITE)
+	cst_wave * wave;
+	cst_voice *voice;
 #else
 	EST_Wave wave;
 #endif

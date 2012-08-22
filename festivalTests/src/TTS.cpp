@@ -8,11 +8,17 @@
 #include "TTS.h"
 #include "ofUtils.h"
 
+extern "C"{
+cst_val *flite_set_voice_list(void);
+}
 
 TTS::TTS() {
 #ifdef USE_FESTIVAL_SERVER
 	server = NULL;
 	wave = NULL;
+#elif defined(USE_FLITE)
+	wave = NULL;
+	voice = NULL;
 #endif
 }
 
@@ -23,6 +29,11 @@ void TTS::initialize(){
 #ifdef USE_FESTIVAL_SERVER
 	FT_Info info = {0,"127.0.0.1",1234,""};
 	server = festivalOpen(NULL);
+#elif defined(USE_FLITE)
+	flite_init();
+	flite_voice_list = flite_set_voice_list();
+	voice = flite_voice_select(NULL);
+	if(!voice) ofLogError() << "couldn't initialize voices";
 #else
 	//int time = ofGetElapsedTimeMicros();
 	festival_initialize(1,210000);
@@ -49,6 +60,19 @@ TTSData TTS::convertToAudio(string text, int samplingRate){
 		data.text = text;
 	}else{
 		ofLogError() << "couldn't read wave from server";
+	}
+#elif defined(USE_FLITE)
+	wave = flite_text_to_wave(text.c_str(),voice);
+	if(wave){
+		/*for(int i=0;i<wave->num_samples;i++){
+			wave->samples[i]) cout << wave->samples[i] << " at " << i<< "/" << wave->num_samples << endl;
+		}*/
+		soundBuffer.copyFrom(wave->samples,wave->num_samples,wave->num_channels,wave->sample_rate);
+		if(samplingRate!=-1) soundBuffer.resample(float(wave->sample_rate)/float(samplingRate),ofSoundBuffer::Linear);
+		data.buffer = &soundBuffer;
+		data.text = text;
+	}else{
+		ofLogError() << "couldn't generate wave";
 	}
 #else
 	if(festival_text_to_wave(text.c_str(),wave)){

@@ -66,8 +66,11 @@ class testApp : public ofBaseApp{
 
         vector < float > brightnessMessage;
         vector < float > hueDiffMessage;
-        splineInfo splineBriInfo;
-        splineInfo splineHueInfo;
+        //splineInfo splineBriInfo;
+        //splineInfo splineHueInfo;
 
-        splineConverter SC;
+        //splineConverter SC;
+
+        bool bOn[80]; // 10 bytes?
+    	unsigned char data[30];
 };
