@@ -171,7 +171,7 @@ void testApp::setup(){
 	ofAddListener(httpServer->getEvent,this,&testApp::getRequest);
 	ofAddListener(httpServer->postEvent,this,&testApp::postRequest);
 	httpServer->setMaxNumberClients(1000);
-	httpServer->setMaxNumberActiveClients(1000);
+	httpServer->setMaxNumberActiveClients(4);
 	httpServer->start(8888);
 
 	wave.setMode(ofPath::PATHS);
