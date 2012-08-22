@@ -56,15 +56,13 @@ void testApp::setup(){
 
 	AudioAnalysis::tts.initialize();
 
-
-	int maxClients = 4;
 	httpServer = ofxHTTPServer::getServer();
 	httpServer->setServerRoot("www");		 // folder with files to be served
 	httpServer->setUploadDir("upload");		 // folder to save uploaded files
 	httpServer->setCallbackExtension("of");	 // extension of urls that aren't files but will generate a post or get event
 	httpServer->setListener(*this);
 	httpServer->setMaxNumberClients(1000);
-	httpServer->setMaxNumberActiveClients(maxClients);
+	httpServer->setMaxNumberActiveClients(4);
 	httpServer->start(8888,true);
 
 

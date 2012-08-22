@@ -46,7 +46,7 @@ class testApp : public ofBaseApp, public ofxHTTPServerListener{
 
 		ofxHTTPServer * httpServer;
 		ofMutex mutex;
-		Poco::Condition condition;
+		Poco::Condition condition, clientsCondition;
 		bool firstRun;
 
         string lastText;
