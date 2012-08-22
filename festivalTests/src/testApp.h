@@ -2,12 +2,11 @@
 
 #include "ofMain.h"
 #include "ofxHTTPServer.h"
-#include "TTS.h"
-#include "audioToColorMapper.h"
 #include "JSONExporter.h"
-#include "splineConverter.h"
+#include "AudioAnalysis.h"
+#include "AudioAnalysisPool.h"
 
-class testApp : public ofBaseApp{
+class testApp : public ofBaseApp, public ofxHTTPServerListener{
 
 	public:
 		void setup();
@@ -27,16 +26,16 @@ class testApp : public ofBaseApp{
 
 		void getRequest(ofxHTTPServerResponse & response);
 		void postRequest(ofxHTTPServerResponse & response);
+		void fileNotFound(ofxHTTPServerResponse & response);
 
 		void newSoundBuffer(const TTSData & soundBuffer);
-
-		void generateWave(ofSoundBuffer & soundBuffer);
-		void computeMessageColors(ofSoundBuffer & soundBuffer, vector<float> & brightnessMessage,vector<float> & hueDiffMessage, vector < ofColor > & colorsForMessage, unsigned char * data);
 		void saveWave(ofCairoRenderer::Type type);
 
 
 
 		void audioOut(float * output, int buffersize, int nChannels, int deviceID, unsigned long long int tickCount);
+
+		int numRequests;
 
 		ofPtr<ofCairoRenderer> cairoScreenshot;
 
@@ -46,20 +45,15 @@ class testApp : public ofBaseApp{
 		unsigned int position;
 
 		ofxHTTPServer * httpServer;
-		TTS tts;
 		ofMutex mutex;
-		ofPath wave;
 		Poco::Condition condition;
 		bool firstRun;
 
-
         string lastText;
-        audioToColorMapper ACM;
-        audioAnaylzer AA;
-
-        JSONExporter json;
         unsigned int lastServed;
         vector<string> alreadyAnalyzed;
+
+        AudioAnalysisPool audioAnalysisPool;
 
         //splineInfo splineBriInfo;
         //splineInfo splineHueInfo;
