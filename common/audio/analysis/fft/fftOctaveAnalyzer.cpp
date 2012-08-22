@@ -68,6 +68,20 @@ void FFTOctaveAnalyzer::setup(float _samplingRate, int nBandsInTheFFT, int _nAve
     linearEQSlope = 0.0f; // unity -- no eq by default
 }
 
+FFTOctaveAnalyzer::FFTOctaveAnalyzer(){
+	spe2avg = 0;
+    averages = 0;
+    peaks = 0;
+    peakHoldTimes = 0;
+}
+
+FFTOctaveAnalyzer::~FFTOctaveAnalyzer(){
+	if(spe2avg) delete[] spe2avg;
+	if(averages) delete[] averages;
+	if(peaks) delete[] peaks;
+	if(peakHoldTimes) delete[] peakHoldTimes;
+}
+
 void FFTOctaveAnalyzer::calculate(float * fftData){
 	
 	int last_avgidx = 0; // tracks when we've crossed into a new averaging bin, so store current average

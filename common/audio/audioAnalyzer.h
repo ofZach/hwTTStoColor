@@ -48,7 +48,14 @@ public:
 #ifdef USE_OFXFFT
         myfft = ofxFft::create(256);
 #endif
-        
+    }
+
+    audioAnaylzer(){
+    	myfft = NULL;
+    }
+
+    ~audioAnaylzer(){
+    	if(myfft) delete myfft;
     }
     
     void analyzeFrame(float * bufferOfAudio, int bufferSize, audioAnalysisFrame & frame){

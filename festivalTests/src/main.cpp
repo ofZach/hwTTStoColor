@@ -8,7 +8,7 @@ int main(  int argc, char *argv[]  ){
 
 	testApp * app = new testApp;
 	app->headless = false;
-	app->threaded = true;
+	app->threaded = false;
 	for(int i=1;i<argc;i++){
 		string arg = argv[i];
 		if(arg.find("--")==0){

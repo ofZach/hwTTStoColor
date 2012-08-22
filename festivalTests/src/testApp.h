@@ -30,8 +30,8 @@ class testApp : public ofBaseApp{
 
 		void newSoundBuffer(const TTSData & soundBuffer);
 
-		void generateWave();
-		void computeMessageColors();
+		void generateWave(ofSoundBuffer & soundBuffer);
+		void computeMessageColors(ofSoundBuffer & soundBuffer, vector<float> & brightnessMessage,vector<float> & hueDiffMessage, vector < ofColor > & colorsForMessage, unsigned char * data);
 		void saveWave(ofCairoRenderer::Type type);
 
 
@@ -43,7 +43,6 @@ class testApp : public ofBaseApp{
 		bool headless, threaded, initialized;
 		
 		ofSoundStream soundStream;
-		ofSoundBuffer soundBuffer;
 		unsigned int position;
 
 		ofxHTTPServer * httpServer;
@@ -54,23 +53,17 @@ class testApp : public ofBaseApp{
 		bool firstRun;
 
 
-        vector < ofColor > colorsForMessage;
         string lastText;
         audioToColorMapper ACM;
         audioAnaylzer AA;
-        audioAnalysisFrame aaFrameTemp;
 
         JSONExporter json;
         unsigned int lastServed;
         vector<string> alreadyAnalyzed;
 
-        vector < float > brightnessMessage;
-        vector < float > hueDiffMessage;
         //splineInfo splineBriInfo;
         //splineInfo splineHueInfo;
 
         //splineConverter SC;
 
-        bool bOn[80]; // 10 bytes?
-    	unsigned char data[30];
 };

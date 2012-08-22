@@ -28,7 +28,7 @@ void aubioAnalyzer::setup(int sampleRate){
 aubioAnalyzer::~aubioAnalyzer(){
 	  del_aubio_pitchdetection(pitch_output);
 	  del_fvec(in);
-	  aubio_cleanup();
+	  //aubio_cleanup();
 }
 
 //--------------------------------------------------------------

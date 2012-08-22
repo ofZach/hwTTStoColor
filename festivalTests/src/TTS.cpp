@@ -17,7 +17,6 @@ TTS::TTS() {
 	server = NULL;
 	wave = NULL;
 #elif defined(USE_FLITE)
-	wave = NULL;
 	voice = NULL;
 #endif
 }
@@ -47,7 +46,7 @@ void TTS::start(){
 
 
 
-TTSData TTS::convertToAudio(string text, int samplingRate){
+TTSData TTS::convertToAudio(string text, int samplingRate, ofSoundBuffer & soundBuffer){
 	TTSData data;
 	data.processingTime = ofGetElapsedTimeMicros();
 #ifdef USE_FESTIVAL_SERVER
@@ -62,7 +61,7 @@ TTSData TTS::convertToAudio(string text, int samplingRate){
 		ofLogError() << "couldn't read wave from server";
 	}
 #elif defined(USE_FLITE)
-	wave = flite_text_to_wave(text.c_str(),voice);
+	cst_wave * wave = flite_text_to_wave(text.c_str(),voice);
 	if(wave){
 		/*for(int i=0;i<wave->num_samples;i++){
 			wave->samples[i]) cout << wave->samples[i] << " at " << i<< "/" << wave->num_samples << endl;
@@ -71,6 +70,8 @@ TTSData TTS::convertToAudio(string text, int samplingRate){
 		if(samplingRate!=-1) soundBuffer.resample(float(wave->sample_rate)/float(samplingRate),ofSoundBuffer::Linear);
 		data.buffer = &soundBuffer;
 		data.text = text;
+		delete[] wave->samples;
+		delete wave;
 	}else{
 		ofLogError() << "couldn't generate wave";
 	}
@@ -100,7 +101,7 @@ void TTS::threadedFunction(){
 			string text = texts.front();
 			texts.pop();
 			mutex.unlock();
-			TTSData data = convertToAudio(text);
+			TTSData data = convertToAudio(text,44100,soundBuffer);
 			ofNotifyEvent(newSoundE,data);
 			mutex.lock();
 		}

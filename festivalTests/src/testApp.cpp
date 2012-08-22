@@ -25,11 +25,8 @@ void testApp::saveWave(ofCairoRenderer::Type type){
 	//index << ("<a href=\"" + path + "\">"+path+"</a><br/>") ;
 }
 
-void testApp::computeMessageColors(){
+void testApp::computeMessageColors(ofSoundBuffer & soundBuffer, vector<float> & brightnessMessage,vector<float> & hueDiffMessage,vector < ofColor > & colorsForMessage, unsigned char * data){
     int bufferSize = 256;
-	colorsForMessage.clear();
-	brightnessMessage.clear();
-	hueDiffMessage.clear();
 
     ofColor color;
     float hue = ofRandom(0,255);
@@ -38,20 +35,26 @@ void testApp::computeMessageColors(){
     color.setHsb(hue, sat, bri);
 
 	unsigned int audioCounter = 0;
-	cout << "resizing from " << soundBuffer.size() << " to " << soundBuffer.size()+(bufferSize-(soundBuffer.size()%bufferSize)) << endl;
 	soundBuffer.resize(soundBuffer.size()+(bufferSize-(soundBuffer.size()%bufferSize)),0);
+    audioAnalysisFrame aaFrameTemp;
+    audioToColorMapper ACMtemp;
+    ACMtemp.setup();
+    ACMtemp = ACM;
+    audioAnaylzer AA;
+    AA.setup(44100);    // sample rate!
 	while (audioCounter < soundBuffer.size()){
 		/*for(int i=0;i<bufferSize;i++){
 			if(abs(soundBuffer[audioCounter+i])>1) cout << soundBuffer[audioCounter+i] << " at " << audioCounter +i<< "/" << soundBuffer.size() << endl;
 		}*/
 		AA.analyzeFrame(&soundBuffer[audioCounter], bufferSize, aaFrameTemp);
-		const ofColor & colorAltered = ACM.update(aaFrameTemp, color);
+		const ofColor & colorAltered = ACMtemp.update(aaFrameTemp, color);
         colorsForMessage.push_back(colorAltered);
-        brightnessMessage.push_back(ofMap(colorAltered.getBrightness(), ACM.darkness * 255, 255, 0,1));
-        hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACM.hueRange, ACM.hueRange, 0,1));
+        brightnessMessage.push_back(ofMap(colorAltered.getBrightness(), ACMtemp.darkness * 255, 255, 0,1));
+        hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACMtemp.hueRange, ACMtemp.hueRange, 0,1));
 		audioCounter+=bufferSize;
 	}
 
+    bool bOn[80]; // 10 bytes?
 	float sums[80];
 	for (int i=0;i < 80; i++){
 		bOn[i] = false;
@@ -202,12 +205,17 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				initialized = true;
 			}
 			unsigned long time = ofGetElapsedTimeMicros();
+			ofSoundBuffer soundBuffer;
 			lastText = text;
-			TTSData data = tts.convertToAudio(text,44100);
+			TTSData ttsData = tts.convertToAudio(text,44100,soundBuffer);
 			if(!headless) mutex.lock();
-			if(data.buffer){
-				soundBuffer = *data.buffer;
-				computeMessageColors();
+
+	        vector < float > brightnessMessage;
+	        vector < float > hueDiffMessage;
+	        vector < ofColor > colorsForMessage;
+	    	unsigned char data[30];
+			if(ttsData.buffer){
+				computeMessageColors(*ttsData.buffer,brightnessMessage,hueDiffMessage,colorsForMessage,data);
 			}
 			time = ofGetElapsedTimeMicros() - time;
 
@@ -215,8 +223,8 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				type = "json";
 			}
 
-			if(!headless || type!="json"){
-				generateWave();
+			if(!headless || (type!="json" && type!="base64")){
+				generateWave(*ttsData.buffer);
 			}
 
 			if(!headless) mutex.unlock();
@@ -238,30 +246,20 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 				ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_JPEG);
 				response.contentType = "image/jpeg";
 			}else if(type=="json"){
-				response.response = json.getJSON(text,soundBuffer,colorsForMessage,time);
+				response.response = json.getJSON(text,*ttsData.buffer,colorsForMessage,time);
 				response.contentType = "application/json";
 			}else{
 				stringstream o;
 				Poco::Base64Encoder encoder(o);
 				for (size_t idx = 0; idx != 30; ++idx){
-					encoder << this->data[idx];
-					cout << (int)this->data[idx] << ", ";
+					encoder << data[idx];
 				}
-				cout << endl;
 				encoder.close();
 				response.response.set(o);
 				return;
 			}
 		}
 	}else if(response.url=="/nextAnalized.of"){
-		if(response.requestFields.find("type")!=response.requestFields.end()){
-			stringstream o;
-			Poco::Base64Encoder encoder(o);
-			encoder << "abcdefghijklmnopqrstuvwz0987654321a";
-			encoder.close();
-			response.response.set(o);
-			return;
-		}
 		mutex.lock();
 		/*if(lastServed >= alreadyAnalyzed.size()){
 			response.errCode = 404;
@@ -285,7 +283,7 @@ void testApp::postRequest(ofxHTTPServerResponse & response){
 
 //--------------------------------------------------------------
 void testApp::newSoundBuffer(const TTSData & tts){
-	if(!headless) mutex.lock();
+	/*if(!headless) mutex.lock();
 	unsigned long time = ofGetElapsedTimeMicros();
 	soundBuffer = *tts.buffer;
 	computeMessageColors();
@@ -297,18 +295,18 @@ void testApp::newSoundBuffer(const TTSData & tts){
 	alreadyAnalyzed.push_back(path);
 	mutex.unlock();
 	ofFile jsonFile("www/" + path,ofFile::WriteOnly);
-	jsonFile << json.getJSON(tts.text,soundBuffer,colorsForMessage,time);
+	jsonFile << json.getJSON(tts.text,soundBuffer,colorsForMessage,time);*/
 }
 
 //--------------------------------------------------------------
 void testApp::audioOut(float * output, int buffersize, int nChannels, int deviceID, unsigned long long int tickCount){
-	mutex.lock();
+	/*mutex.lock();
 	soundBuffer.copyTo(output,buffersize,nChannels,position,true);
 	if(soundBuffer.size()>0){
 		position += buffersize;
 		position %= soundBuffer.bufferSize();
 	}
-	mutex.unlock();
+	mutex.unlock();*/
 }
 
 void testApp::exit(){
@@ -327,7 +325,7 @@ void testApp::update(){
 }
 
 //--------------------------------------------------------------
-void testApp::generateWave(){
+void testApp::generateWave(ofSoundBuffer & soundBuffer){
 	wave.clear();
 	if(soundBuffer.bufferSize()>0){
 		int increment = float(soundBuffer.bufferSize())/float(ofGetWidth());
@@ -344,7 +342,7 @@ void testApp::draw(){
 	ofSetColor(0);
 	ofDrawBitmapString(lastText,10,10);
 	wave.draw();
-	if(!headless && soundBuffer.bufferSize()>0){
+	/*if(!headless && soundBuffer.bufferSize()>0){
 		int increment = float(soundBuffer.bufferSize())/float(ofGetWidth());
 		ofSetColor(255,0,0);
 		ofLine(position/increment,0,position/increment,ofGetHeight());
@@ -372,49 +370,8 @@ void testApp::draw(){
 			ofVertex(i*width, ofGetHeight()-ofMap(brightnessMessage[i],0,1,50,80));
 		}
 		ofEndShape();
-
-		/*
-		// ----------------------------
-		// get data back from spline.
-		vector < ofPoint > ptsBack = SC.dataFromSpline(splineBriInfo);
-		width = float(ofGetWidth())/float(ptsBack.size());
-		// ----------------------------
-		// draw that.
-		ofSetColor(0,0,255);
-		ofBeginShape();
-		for (int i = 0; i < ptsBack.size(); i++){
-			ofVertex(ptsBack[i].x*width, ofGetHeight()-ofMap(ptsBack[i].y,0,1,50,90));
-		}
-		ofEndShape();*/
-	}
-
-
-
-	// ----------------------------
-	// draw the hue ramp,
-	/*if(!hueDiffMessage.empty()){
-		ofSetColor(0,0,0);
-		float width = float(ofGetWidth())/float(hueDiffMessage.size());
-		ofBeginShape();
-		for (int i = 0; i < hueDiffMessage.size(); i++){
-			ofVertex(i*width, ofGetHeight()-ofMap(hueDiffMessage[i],0,1,90,130));
-		}
-		ofEndShape();
-
-		// ----------------------------
-		// get data back from spline.
-		vector < ofPoint > ptsBack = SC.dataFromSpline(splineHueInfo);
-		width = float(ofGetWidth())/float(ptsBack.size());
-
-		// ----------------------------
-		// draw that.
-		ofSetColor(0,0,255);
-		ofBeginShape();
-		for (int i = 0; i < ptsBack.size(); i++){
-			ofVertex(ptsBack[i].x*width, 20+ ofMap(ptsBack[i].y,0,1,90,140));
-		}
-		ofEndShape();
 	}*/
+
 	mutex.unlock();
 }
 

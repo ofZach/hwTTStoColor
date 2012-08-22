@@ -35,6 +35,8 @@ public:
 	// so.. note that clever use of it can also provide a "gain" control of sorts
 	// (fe: set intercept to 2f and slope to 0f to double gain)
 	
+	FFTOctaveAnalyzer();
+	~FFTOctaveAnalyzer();
 	void setup(float samplingRate, int nBandsInTheFFT, int nAveragesPerOctave);
 	
 	void calculate(float * fftData);

@@ -44,7 +44,7 @@ public:
 	void start();
 
 	void addText(string text);
-	TTSData convertToAudio(string text, int samplingRate=-1);
+	TTSData convertToAudio(string text, int samplingRate, ofSoundBuffer & buffer);
 
 	ofEvent<const TTSData> newSoundE;
 
@@ -55,7 +55,6 @@ private:
 	FT_Wave * wave;
 	FT_Info * server;
 #elif defined(USE_FLITE)
-	cst_wave * wave;
 	cst_voice *voice;
 #else
 	EST_Wave wave;
