@@ -170,7 +170,8 @@ void testApp::setup(){
 	httpServer->setCallbackExtension("of");	 // extension of urls that aren't files but will generate a post or get event
 	ofAddListener(httpServer->getEvent,this,&testApp::getRequest);
 	ofAddListener(httpServer->postEvent,this,&testApp::postRequest);
-	httpServer->setMaxNumberClients(100);
+	httpServer->setMaxNumberClients(1000);
+	httpServer->setMaxNumberActiveClients(1000);
 	httpServer->start(8888);
 
 	wave.setMode(ofPath::PATHS);
