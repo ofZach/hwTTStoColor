@@ -218,7 +218,7 @@ void AudioAnalysis::generateBase64(){
 
 	stringstream o;
 	Poco::Base64Encoder encoder(o);
-	for (size_t idx = 0; idx != 306; ++idx){
+	for (size_t idx = 0; idx != 36; ++idx){
 		encoder << data[idx];
 	}
 	encoder.close();
