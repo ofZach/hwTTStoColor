@@ -21,7 +21,6 @@ public:
 	void setup();
 	void analize(string text, bool generateWave=false);
 	void computeMessageColors();
-	void generateWave();
 
     vector < float > brightnessMessage;
     vector < float > hueDiffMessage;
@@ -32,13 +31,18 @@ public:
     static TTS tts;
 
 private:
+	void generateWave();
+	void generateBase64();
     audioToColorMapper ACM;
     audioAnaylzer AA;
     audioAnalysisFrame aaFrameTemp;
     audioToColorMapper ACMtemp;
     bool bOn[80]; // 10 bytes?
 	float sums[80];
-	unsigned char data[30];
+	unsigned char data[36];
+    bool hUp[80]; // hue changes up
+    bool hDown[80]; // 10 bytes?
+    float hueThresh;
 };
 
 #endif /* AUDIOANALYSIS_H_ */

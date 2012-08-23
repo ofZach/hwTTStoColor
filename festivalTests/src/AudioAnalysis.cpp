@@ -44,6 +44,7 @@ void AudioAnalysis::analize(string text, bool _generateWave){
 	TTSData ttsData = tts.convertToAudio(text,44100,soundBuffer);
 	if(ttsData.buffer){
 		computeMessageColors();
+		generateBase64();
 		if(_generateWave) generateWave();
 	}
 }
@@ -86,9 +87,11 @@ void AudioAnalysis::computeMessageColors(){
 		audioCounter+=bufferSize;
 	}
 
-    bool bOn[80]; // 10 bytes?
-	float sums[80];
+	//---------------------------------------------- handle volume bytes:
+
 	for (int i=0;i < 80; i++){
+
+
 		bOn[i] = false;
 
 		float pctA = (float)(i) / (81.0f);
@@ -112,6 +115,7 @@ void AudioAnalysis::computeMessageColors(){
 
 
 	for (int i = 0; i < 80; i++){
+
 		float sumSmooth = 0;
 		for (int j = -1; j <= 1; j++){
 
@@ -134,11 +138,58 @@ void AudioAnalysis::computeMessageColors(){
 	}
 
 
-	memset(data,0,30);
+	//---------------------------------------------- handle hue bytes:
+
+
+
+	//float sums[80];
+	float prevHue = 0;
+	for (int i=0;i < 80; i++){
+
+
+		hUp[i] = false;
+		hDown[i] = false;
+
+		float pctA = (float)(i) / (81.0f);
+		float pctB = (float)(i+1) / (81.0f);
+
+		int from =  (int)(pctA * brightnessMessage.size());
+		int to =    (int)(pctB * brightnessMessage.size());
+		int howMany =(to- from);
+		float sum = 0;
+		for (int j = from; j < to; j++){
+			sum += hueDiffMessage[j];
+		}
+		sum /= (float) howMany;
+
+		if (sum > (0.50+hueThresh)){
+			hUp[i] = true;
+		} else if (sum < (0.50-hueThresh)){
+			hDown[i] = true;
+		}
+		//cout << "hue diffs " << sum << endl;
+		/*if (sum > 0.5){
+			bOn[i] = true;
+		}*/
+
+		prevHue = sum;
+	}
+}
+
+
+void AudioAnalysis::generateBase64(){
+	//lengthOfPattern = (uint32_t)ofMap(rx->payload[2], 0,255, 200,8000, 1); 		// fast or slow animation. ?
+	//lengthToStayUp = (uint32_t)ofMap(rx->payload[3], 0,255, 200,10000, 1);
+
+	for (int i = 0; i < 36; i++){
+		data[i] = 0;
+	}
 	data[0] = 255;
 	data[1] = 1;
 	data[2] = 127;
 	data[3] = 255;
+
+	// volume
 	for (int i = 0; i < 10; i++){
 		data[4+i] = 0;
 		for (int j = 0; j < 8; j++){
@@ -146,10 +197,28 @@ void AudioAnalysis::computeMessageColors(){
 		}
 	}
 
+	// hue up
+	for (int i = 0; i < 10; i++){
+		data[10+4+i] = 0;
+		for (int j = 0; j < 8; j++){
+			data[10 + 4+i] |= hUp[i*8 + j] == true ? (0x01 << (7-j)) : 0;
+		}
+	}
+
+	// hue down
+	for (int i = 0; i < 10; i++){
+		data[20+4+i] = 0;
+		for (int j = 0; j < 8; j++){
+			data[20 + 4 + i] |= hDown[i*8 + j] == true ? (0x01 << (7-j)) : 0;
+
+		}
+	}
+
+
 
 	stringstream o;
 	Poco::Base64Encoder encoder(o);
-	for (size_t idx = 0; idx != 30; ++idx){
+	for (size_t idx = 0; idx != 306; ++idx){
 		encoder << data[idx];
 	}
 	encoder.close();
