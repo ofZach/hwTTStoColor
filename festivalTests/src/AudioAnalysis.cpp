@@ -29,7 +29,6 @@ void AudioAnalysis::setup(){
 	ACM.darkness = 0.5;
 	ACM.hueFadeRate = 0.96;
 
-	tts.initialize();
 
 	wave.setMode(ofPath::PATHS);
 	wave.setArcResolution(20);

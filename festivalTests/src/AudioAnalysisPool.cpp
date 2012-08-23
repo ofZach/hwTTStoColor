@@ -22,8 +22,10 @@ ofPtr<AudioAnalysis> AudioAnalysisPool::getAnalyzer(){
 	if(pool.empty()){
 		ofPtr<AudioAnalysis> analizer(new AudioAnalysis);
 		analizer->setup();
+		cout << "pool empty returning new AudioAnalysis" << endl;
 		return analizer;
 	}else{
+		cout << "pool size " << pool.size() << endl;
 		ofPtr<AudioAnalysis> analizer = pool.back();
 		pool.erase(pool.end()-1);
 		return analizer;

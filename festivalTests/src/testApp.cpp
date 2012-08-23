@@ -94,10 +94,10 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 
 		unsigned long time = ofGetElapsedTimeMicros();
 		ofPtr<AudioAnalysis> analizer = audioAnalysisPool.getAnalyzer();
-		analizer->analize(text, !headless || (type!="json" && type!="base64"));
+		analizer->analize(text, (!headless || (type!="json" && type!="base64")) );
 		time = ofGetElapsedTimeMicros() - time;
 
-		if(!headless) mutex.unlock();
+		//if(!headless) mutex.unlock();
 
 		if(type == "svg"){
 			saveWave(ofCairoRenderer::SVG);
