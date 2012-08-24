@@ -28,7 +28,7 @@ public:
     ofSoundBuffer soundBuffer;
     ofBuffer base64;
 	ofPath wave;
-    static TTS tts;
+    TTS tts;
 
 private:
 	void generateWave();

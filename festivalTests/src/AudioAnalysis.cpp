@@ -8,7 +8,7 @@
 #include "AudioAnalysis.h"
 #include "Poco/Base64Encoder.h"
 
-TTS AudioAnalysis::tts;
+//TTS AudioAnalysis::tts;
 
 AudioAnalysis::AudioAnalysis() {
 	// TODO Auto-generated constructor stub
@@ -20,6 +20,7 @@ AudioAnalysis::~AudioAnalysis() {
 }
 
 void AudioAnalysis::setup(){
+	tts.initialize();
 	AA.setup(44100);
 
 	ACM.setup();

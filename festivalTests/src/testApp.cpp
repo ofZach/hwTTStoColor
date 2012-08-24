@@ -54,7 +54,9 @@ void testApp::setup(){
 		soundStream.setup(this,2,0,44100,256,4);
 	}
 
-	AudioAnalysis::tts.initialize();
+	//AudioAnalysis::tts.initialize();
+
+	//audioAnalysisPool.resize(4);
 
 	httpServer = ofxHTTPServer::getServer();
 	httpServer->setServerRoot("www");		 // folder with files to be served
@@ -63,7 +65,7 @@ void testApp::setup(){
 	httpServer->setListener(*this);
 	httpServer->setMaxNumberClients(1000);
 	httpServer->setMaxNumberActiveClients(4);
-	httpServer->start(8888,true);
+	httpServer->start(8888,false);
 
 
 	firstRun = true;

@@ -31,7 +31,7 @@ EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj"
 
 # change this to add different compiler optimizations to your project
 
-USER_COMPILER_OPTIMIZATION = -march=native -mtune=native -Os
+USER_COMPILER_OPTIMIZATION = -march=native -mtune=native -Os -g3
 USER_SOURCE_DIR = ../common
 
 # android specific, in case you want to use different optimizations

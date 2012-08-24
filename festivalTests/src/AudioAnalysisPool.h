@@ -19,6 +19,7 @@ public:
 
 	ofPtr<AudioAnalysis> getAnalyzer();
 	void releaseAnalyzer(ofPtr<AudioAnalysis> analizer);
+	void resize(int size);
 
 private:
     vector<ofPtr<AudioAnalysis> > pool;

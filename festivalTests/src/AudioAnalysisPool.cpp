@@ -22,10 +22,8 @@ ofPtr<AudioAnalysis> AudioAnalysisPool::getAnalyzer(){
 	if(pool.empty()){
 		ofPtr<AudioAnalysis> analizer(new AudioAnalysis);
 		analizer->setup();
-		cout << "pool empty returning new AudioAnalysis" << endl;
 		return analizer;
 	}else{
-		cout << "pool size " << pool.size() << endl;
 		ofPtr<AudioAnalysis> analizer = pool.back();
 		pool.erase(pool.end()-1);
 		return analizer;
@@ -34,5 +32,13 @@ ofPtr<AudioAnalysis> AudioAnalysisPool::getAnalyzer(){
 
 void AudioAnalysisPool::releaseAnalyzer(ofPtr<AudioAnalysis> analizer){
 	Poco::ScopedLock<ofMutex> lock(mutex);
+	pool.push_back(analizer);
+}
+
+
+void AudioAnalysisPool::resize(int size){
+	Poco::ScopedLock<ofMutex> lock(mutex);
+	ofPtr<AudioAnalysis> analizer(new AudioAnalysis);
+	analizer->setup();
 	pool.push_back(analizer);
 }

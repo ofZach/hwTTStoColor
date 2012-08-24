@@ -8,6 +8,8 @@
 #include "TTS.h"
 #include "ofUtils.h"
 
+static bool initialized = false;
+
 extern "C"{
 cst_val *flite_set_voice_list(void);
 }
@@ -29,7 +31,10 @@ void TTS::initialize(){
 	FT_Info info = {0,"127.0.0.1",1234,""};
 	server = festivalOpen(NULL);
 #elif defined(USE_FLITE)
-	flite_init();
+	if(!initialized){
+		flite_init();
+		initialized = true;
+	}
 	flite_voice_list = flite_set_voice_list();
 	voice = flite_voice_select(NULL);
 	if(!voice) ofLogError() << "couldn't initialize voices";
