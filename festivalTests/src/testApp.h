@@ -59,5 +59,5 @@ class testApp : public ofBaseApp, public ofxHTTPServerListener{
         //splineInfo splineHueInfo;
 
         //splineConverter SC;
-
+        int port;
 };

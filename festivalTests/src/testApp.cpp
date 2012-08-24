@@ -65,7 +65,7 @@ void testApp::setup(){
 	httpServer->setListener(*this);
 	httpServer->setMaxNumberClients(1000);
 	httpServer->setMaxNumberActiveClients(4);
-	httpServer->start(8888,false);
+	httpServer->start(port,false);
 
 
 	firstRun = true;

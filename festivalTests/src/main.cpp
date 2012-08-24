@@ -9,6 +9,7 @@ int main(  int argc, char *argv[]  ){
 	testApp * app = new testApp;
 	app->headless = false;
 	app->threaded = false;
+	app->port = 8888;
 	for(int i=1;i<argc;i++){
 		string arg = argv[i];
 		if(arg.find("--")==0){
@@ -20,10 +21,19 @@ int main(  int argc, char *argv[]  ){
 				app->threaded = false;
 			}
 			if(arg=="service"){
+				//ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),".tts.pid"),ofFile::WriteOnly);
+				//pidFile << getpid() << endl;
+				app->headless = true;
+				ofSetDataPathRoot("/var/www/");
+			}
+			if(arg=="service"){
 				ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),".tts.pid"),ofFile::WriteOnly);
 				pidFile << getpid() << endl;
 				app->headless = true;
 				ofSetDataPathRoot("/var/www/");
+			}
+			if(arg=="port"){
+				app->port = ofToInt(argv[i+1]);
 			}
 		}
 	}
