@@ -22,10 +22,6 @@ int main(  int argc, char *argv[]  ){
 				app->threaded = false;
 			}
 			if(arg=="service"){
-				app->headless = true;
-				ofSetDataPathRoot("/var/www/");
-			}
-			if(arg=="service"){
 				service = true;
 				app->headless = true;
 				ofSetDataPathRoot("/var/www/");
@@ -37,7 +33,7 @@ int main(  int argc, char *argv[]  ){
 	}
 
 	if(service){
-		ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),"tts"+ofToString(app->port) + ".pid"),ofFile::WriteOnly);
+		ofFile pidFile(ofFilePath::join("/var/www/","tts"+ofToString(app->port) + ".pid"),ofFile::WriteOnly);
 		pidFile << getpid() << endl;
 		ofLogToFile("/var/www/tts"+ofToString(app->port) + ".log",true);
 	}
