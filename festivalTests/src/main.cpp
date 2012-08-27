@@ -10,6 +10,7 @@ int main(  int argc, char *argv[]  ){
 	app->headless = false;
 	app->threaded = false;
 	app->port = 8888;
+	bool service = false;
 	for(int i=1;i<argc;i++){
 		string arg = argv[i];
 		if(arg.find("--")==0){
@@ -21,14 +22,11 @@ int main(  int argc, char *argv[]  ){
 				app->threaded = false;
 			}
 			if(arg=="service"){
-				//ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),".tts.pid"),ofFile::WriteOnly);
-				//pidFile << getpid() << endl;
 				app->headless = true;
 				ofSetDataPathRoot("/var/www/");
 			}
 			if(arg=="service"){
-				ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),".tts.pid"),ofFile::WriteOnly);
-				pidFile << getpid() << endl;
+				service = true;
 				app->headless = true;
 				ofSetDataPathRoot("/var/www/");
 			}
@@ -36,6 +34,12 @@ int main(  int argc, char *argv[]  ){
 				app->port = ofToInt(argv[i+1]);
 			}
 		}
+	}
+
+	if(service){
+		ofFile pidFile(ofFilePath::join(ofFilePath::getUserHomeDir(),"tts"+ofToString(app->port) + ".pid"),ofFile::WriteOnly);
+		pidFile << getpid() << endl;
+		ofLogToFile("/var/www/tts"+ofToString(app->port) + ".log",true);
 	}
 
 	if(app->headless){
