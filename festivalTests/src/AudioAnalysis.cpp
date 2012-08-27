@@ -44,7 +44,7 @@ void AudioAnalysis::analize(string text, const ofColor & c, bool _generateWave){
 	TTSData ttsData = tts.convertToAudio(text,44100,soundBuffer);
 	if(ttsData.buffer){
 		computeMessageColors(c);
-		generateBase64();
+		generateBase64(ttsData.buffer->getDuration());
 		if(_generateWave) generateWave();
 	}
 }
@@ -137,7 +137,7 @@ void AudioAnalysis::computeMessageColors(const ofColor & color){
 
 
 	//float sums[80];
-	float prevHue = 0;
+	//float prevHue = 0;
 	for (int i=0;i < 80; i++){
 
 
@@ -166,12 +166,12 @@ void AudioAnalysis::computeMessageColors(const ofColor & color){
 			bOn[i] = true;
 		}*/
 
-		prevHue = sum;
+		//prevHue = sum;
 	}
 }
 
 
-void AudioAnalysis::generateBase64(){
+void AudioAnalysis::generateBase64(int durationms){
 	//lengthOfPattern = (uint32_t)ofMap(rx->payload[2], 0,255, 200,8000, 1); 		// fast or slow animation. ?
 	//lengthToStayUp = (uint32_t)ofMap(rx->payload[3], 0,255, 200,10000, 1);
 
@@ -181,7 +181,7 @@ void AudioAnalysis::generateBase64(){
 	data[0] = 255;
 	data[1] = 1;
 	data[2] = 127;
-	data[3] = 255;
+	data[3] = ofMap(durationms,600,7000,0,255);
 
 	// volume
 	for (int i = 0; i < 10; i++){

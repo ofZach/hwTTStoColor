@@ -32,7 +32,7 @@ public:
 
 private:
 	void generateWave();
-	void generateBase64();
+	void generateBase64(int durationms);
     audioToColorMapper ACM;
     audioAnaylzer AA;
     audioAnalysisFrame aaFrameTemp;

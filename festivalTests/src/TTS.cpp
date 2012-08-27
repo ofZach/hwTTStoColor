@@ -72,7 +72,8 @@ TTSData TTS::convertToAudio(string text, int samplingRate, ofSoundBuffer & sound
 			wave->samples[i]) cout << wave->samples[i] << " at " << i<< "/" << wave->num_samples << endl;
 		}*/
 		soundBuffer.copyFrom(wave->samples,wave->num_samples,wave->num_channels,wave->sample_rate);
-		if(samplingRate!=-1) soundBuffer.resample(float(wave->sample_rate)/float(samplingRate),ofSoundBuffer::Linear);
+		if(samplingRate!=-1) soundBuffer.resample(float(wave->sample_rate)/float(samplingRate),ofSoundBuffer::Hermite);
+		soundBuffer.setSampleRate(samplingRate);
 		data.buffer = &soundBuffer;
 		data.text = text;
 		delete[] wave->samples;
