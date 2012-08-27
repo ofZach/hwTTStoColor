@@ -11,7 +11,6 @@
 //TTS AudioAnalysis::tts;
 
 AudioAnalysis::AudioAnalysis() {
-	// TODO Auto-generated constructor stub
 
 }
 
@@ -30,6 +29,7 @@ void AudioAnalysis::setup(){
 	ACM.darkness = 0.5;
 	ACM.hueFadeRate = 0.96;
 
+    hueThresh = 0.0535;
 
 	wave.setMode(ofPath::PATHS);
 	wave.setArcResolution(20);
