@@ -33,8 +33,8 @@ int main(  int argc, char *argv[]  ){
 	}
 
 	if(service){
-		//ofFile pidFile(ofFilePath::join("/var/www/","tts"+ofToString(app->port) + ".pid"),ofFile::WriteOnly);
-		//pidFile << getpid() << endl;
+		ofFile pidFile("/var/www/tts"+ofToString(app->port) + ".pid",ofFile::WriteOnly);
+		pidFile << getpid() << endl;
 		ofLogToFile("/var/www/tts"+ofToString(app->port) + ".log",true);
 	}
 
