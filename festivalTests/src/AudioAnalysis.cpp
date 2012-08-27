@@ -181,7 +181,7 @@ void AudioAnalysis::generateBase64(int durationms){
 	data[0] = 255;
 	data[1] = 1;
 	data[2] = 127;
-	data[3] = ofMap(durationms,600,7000,0,255);
+	data[3] = ofMap(durationms,600,7000,0,255,true);
 
 	// volume
 	for (int i = 0; i < 10; i++){
