@@ -13,6 +13,7 @@ void killServer(int port){
 	pidFile >> pid;
 
 	kill(pid,SIGTERM);
+	system(("/usr/bin/tts --port " + ofToString(port) + " --service &").c_str());
 }
 
 //========================================================================
