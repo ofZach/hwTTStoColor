@@ -86,6 +86,26 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 			type = response.requestFields["type"];
 		}
 
+	    ofColor color;
+	    float hue = ofRandom(0,255);
+	    float sat = ofRandom(190,230);
+	    float bri = ofRandom(220,238);
+	    color.setHsb(hue, sat, bri);
+
+		if(response.requestFields.find("r")!=response.requestFields.end()){
+			color.r = ofToInt(response.requestFields["r"]);
+		}
+
+		if(response.requestFields.find("g")!=response.requestFields.end()){
+			color.g = ofToInt(response.requestFields["g"]);
+		}
+
+		if(response.requestFields.find("b")!=response.requestFields.end()){
+			color.b = ofToInt(response.requestFields["b"]);
+		}
+
+
+
 		/*if(threaded && type==""){
 			tts.addText(text);
 		}else{*/
@@ -96,7 +116,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 
 		unsigned long time = ofGetElapsedTimeMicros();
 		ofPtr<AudioAnalysis> analizer = audioAnalysisPool.getAnalyzer();
-		analizer->analize(text, (!headless || (type!="json" && type!="base64")) );
+		analizer->analize(text,color, (!headless || (type!="json" && type!="base64")) );
 		time = ofGetElapsedTimeMicros() - time;
 
 		//if(!headless) mutex.unlock();

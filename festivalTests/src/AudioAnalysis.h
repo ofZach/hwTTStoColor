@@ -19,8 +19,8 @@ public:
 	virtual ~AudioAnalysis();
 
 	void setup();
-	void analize(string text, bool generateWave=false);
-	void computeMessageColors();
+	void analize(string text, const ofColor & c, bool generateWave=false);
+	void computeMessageColors(const ofColor & c);
 
     vector < float > brightnessMessage;
     vector < float > hueDiffMessage;

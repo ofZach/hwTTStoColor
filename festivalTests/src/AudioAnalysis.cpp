@@ -40,10 +40,10 @@ void AudioAnalysis::setup(){
 
 }
 
-void AudioAnalysis::analize(string text, bool _generateWave){
+void AudioAnalysis::analize(string text, const ofColor & c, bool _generateWave){
 	TTSData ttsData = tts.convertToAudio(text,44100,soundBuffer);
 	if(ttsData.buffer){
-		computeMessageColors();
+		computeMessageColors(c);
 		generateBase64();
 		if(_generateWave) generateWave();
 	}
@@ -59,14 +59,8 @@ void AudioAnalysis::generateWave(){
 	}
 }
 
-void AudioAnalysis::computeMessageColors(){
+void AudioAnalysis::computeMessageColors(const ofColor & color){
     int bufferSize = 256;
-
-    ofColor color;
-    float hue = ofRandom(0,255);
-    float sat = ofRandom(190,230);
-    float bri = ofRandom(220,238);
-    color.setHsb(hue, sat, bri);
 
     colorsForMessage.clear();
     brightnessMessage.clear();
