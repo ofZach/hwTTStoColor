@@ -30,7 +30,8 @@
 
 **********************************************************************/
 
-#include "fft.h"
+#include "smallfft.h"
+//#include "fft.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -473,7 +474,7 @@ void fft::inversePowerSpectrum(int start, int half, int windowSize, float *final
 		in_img[i] = 0.0;
 	}
 	
-	//FFT(windowSize, 1, in_real, in_img, out_real, out_img); // second parameter indicates inverse transform
+	FFT(windowSize, 1, in_real, in_img, out_real, out_img); // second parameter indicates inverse transform
 	WindowFunc(windowFunc, windowSize, out_real);
 				
 	for (i = 0; i < windowSize; i++) {

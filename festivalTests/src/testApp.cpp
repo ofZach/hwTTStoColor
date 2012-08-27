@@ -87,12 +87,12 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 		}
 
 	    ofColor color;
-	    float hue = ofRandom(0,255);
-	    float sat = ofRandom(190,230);
-	    float bri = ofRandom(220,238);
+	    float hue = 127;
+	    float sat = 230;
+	    float bri = 238;
 	    color.setHsb(hue, sat, bri);
 
-		if(response.requestFields.find("r")!=response.requestFields.end()){
+		/*if(response.requestFields.find("r")!=response.requestFields.end()){
 			color.r = ofToInt(response.requestFields["r"]);
 		}
 
@@ -102,7 +102,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 
 		if(response.requestFields.find("b")!=response.requestFields.end()){
 			color.b = ofToInt(response.requestFields["b"]);
-		}
+		}*/
 
 
 

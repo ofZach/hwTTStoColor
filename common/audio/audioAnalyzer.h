@@ -12,7 +12,7 @@
 #ifdef USE_OFXFFT
 #include "ofxFft.h"
 #else
-#include "fft.h"
+#include "smallfft.h"
 #endif
 
 
@@ -51,11 +51,15 @@ public:
     }
 
     audioAnaylzer(){
+#ifdef USE_OFXFFT
     	myfft = NULL;
+#endif
     }
 
     ~audioAnaylzer(){
+#ifdef USE_OFXFFT
     	if(myfft) delete myfft;
+#endif
     }
     
     void analyzeFrame(float * bufferOfAudio, int bufferSize, audioAnalysisFrame & frame){
