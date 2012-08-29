@@ -82,7 +82,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 		}
 		string text = response.requestFields["text"];
 		string type;
-		float hueThresh=0.0535;
+		float hueThresh=0.011;
 		if(response.requestFields.find("type")!=response.requestFields.end()){
 			type = response.requestFields["type"];
 		}
