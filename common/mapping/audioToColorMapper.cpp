@@ -31,7 +31,7 @@ void audioToColorMapper::setup(){
     
     
     volumeSmoothing = 0.8f;
-    hueRange= 35;
+    hueRange = 35;
     hueShiftValStart = 0.2;
     darkness = 0.5;
     
@@ -117,3 +117,4 @@ ofColor audioToColorMapper::update(audioAnalysisFrame aaFrame, ofColor color){
     
     
 }
+

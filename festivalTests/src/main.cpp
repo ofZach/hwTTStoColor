@@ -40,7 +40,7 @@ int main(  int argc, char *argv[]  ){
 
 	if(app->headless){
 		ofAppNoWindow * window = new ofAppNoWindow;
-		ofSetupOpenGL(window, 1024,240, OF_WINDOW);			// <-------- setup the GL context
+		ofSetupOpenGL(window, 1024,400, OF_WINDOW);			// <-------- setup the GL context
 	}else{
 		ofAppGlutWindow * window = new ofAppGlutWindow;
 		ofSetupOpenGL(window, 1024,240, OF_WINDOW);			// <-------- setup the GL context

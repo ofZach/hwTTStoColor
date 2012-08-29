@@ -25,11 +25,11 @@ void AudioAnalysis::setup(){
 	ACM.setup();
 	ACM.volumeSmoothing = 0.8;
 	ACM.hueRange = 35;
-	ACM.hueShiftValStart = 0.2;
+	ACM.hueShiftValStart = 0.3;
 	ACM.darkness = 0.5;
-	ACM.hueFadeRate = 0.96;
+	ACM.hueFadeRate = 0.87;
 
-    hueThresh = 0.0535;
+    hueThresh = 0.011;//0.00001;//0.0535;
 
 	wave.setMode(ofPath::PATHS);
 	wave.setArcResolution(20);
@@ -40,12 +40,14 @@ void AudioAnalysis::setup(){
 
 }
 
-void AudioAnalysis::analize(string text, const ofColor & c, bool _generateWave){
+void AudioAnalysis::analize(string text, const ofColor & c, float _hueThresh, bool _generateWave){
+	hueThresh = _hueThresh;
 	TTSData ttsData = tts.convertToAudio(text,44100,soundBuffer);
 	if(ttsData.buffer){
 		computeMessageColors(c);
 		generateBase64(ttsData.buffer->getDuration());
 		if(_generateWave) generateWave();
+		decodeData();
 	}
 }
 
@@ -56,6 +58,13 @@ void AudioAnalysis::generateWave(){
 		for(unsigned int i=0;i<soundBuffer.bufferSize();i+=increment){
 			wave.lineTo(i/increment,ofGetHeight()*.5 + soundBuffer[i]*ofGetHeight()*.5);
 		}
+	}
+}
+
+void AudioAnalysis::decodeData(){
+	decoded_data.clear();
+	for(int i=0;i<36;i++){
+		decoded_data += ofToBinary(data[i]);
 	}
 }
 
@@ -74,10 +83,10 @@ void AudioAnalysis::computeMessageColors(const ofColor & color){
 			if(abs(soundBuffer[audioCounter+i])>1) cout << soundBuffer[audioCounter+i] << " at " << audioCounter +i<< "/" << soundBuffer.size() << endl;
 		}*/
 		AA.analyzeFrame(&soundBuffer[audioCounter], bufferSize, aaFrameTemp);
-		const ofColor & colorAltered = ACMtemp.update(aaFrameTemp, color);
+		const ofColor & colorAltered = ACM.update(aaFrameTemp, color);
         colorsForMessage.push_back(colorAltered);
-        brightnessMessage.push_back(ofMap(colorAltered.getBrightness(), ACMtemp.darkness * 255, 255, 0,1));
-        hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACMtemp.hueRange, ACMtemp.hueRange, 0,1));
+        brightnessMessage.push_back(ofMap(colorAltered.getBrightness(), ACM.darkness * 255, 255, 0,1));
+        hueDiffMessage.push_back(ofMap(color.getHue() - colorAltered.getHue(), -ACM.hueRange, ACM.hueRange, 0,1));
 		audioCounter+=bufferSize;
 	}
 
@@ -212,7 +221,7 @@ void AudioAnalysis::generateBase64(int durationms){
 
 	stringstream o;
 	Poco::Base64Encoder encoder(o);
-	for (size_t idx = 0; idx != 36; ++idx){
+	for (size_t idx = 0; idx < 36; ++idx){
 		encoder << data[idx];
 	}
 	encoder.close();

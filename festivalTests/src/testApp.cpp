@@ -6,7 +6,7 @@
 #include "Poco/Base64Encoder.h"
 
 //--------------------------------------------------------------
-void testApp::saveWave(ofCairoRenderer::Type type){
+void testApp::saveWave(ofCairoRenderer::Type type,ofPtr<AudioAnalysis> analizer){
 	ofPtr<ofBaseRenderer> storedRenderer = ofGetCurrentRenderer();
 
 	//"www/"+path,
@@ -17,7 +17,7 @@ void testApp::saveWave(ofCairoRenderer::Type type){
 	rendererCollection->renderers.push_back(cairoScreenshot);
 
 	ofSetCurrentRenderer(rendererCollection);
-	draw();
+	drawWave(analizer);
 	cairoScreenshot->close();
 	ofSetCurrentRenderer(storedRenderer);
 
@@ -82,8 +82,12 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 		}
 		string text = response.requestFields["text"];
 		string type;
+		float hueThresh=0.0535;
 		if(response.requestFields.find("type")!=response.requestFields.end()){
 			type = response.requestFields["type"];
+		}
+		if(response.requestFields.find("hueThresh")!=response.requestFields.end()){
+			hueThresh = ofToFloat(response.requestFields["hueThresh"]);
 		}
 
 	    ofColor color;
@@ -116,30 +120,30 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 
 		unsigned long time = ofGetElapsedTimeMicros();
 		ofPtr<AudioAnalysis> analizer = audioAnalysisPool.getAnalyzer();
-		analizer->analize(text,color, (!headless || (type!="json" && type!="base64")) );
+		analizer->analize(text,color, hueThresh, (!headless || (type!="json" && type!="base64")) );
 		time = ofGetElapsedTimeMicros() - time;
 
 		//if(!headless) mutex.unlock();
 
 		if(type == "svg"){
-			saveWave(ofCairoRenderer::SVG);
+			saveWave(ofCairoRenderer::SVG,analizer);
 			response.response = cairoScreenshot->getContentBuffer();
 			response.contentType = "image/svg+xml";
 		}else if(type=="pdf"){
-			saveWave(ofCairoRenderer::PDF);
+			saveWave(ofCairoRenderer::SVG,analizer);
 			response.response = cairoScreenshot->getContentBuffer();
 			response.contentType = "application/pdf";
 		}else if(type=="png"){
-			saveWave(ofCairoRenderer::IMAGE);
+			saveWave(ofCairoRenderer::SVG,analizer);
 			ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_PNG);
 			response.contentType = "image/png";
 		}else if(type=="jpeg"){
-			saveWave(ofCairoRenderer::IMAGE);
+			saveWave(ofCairoRenderer::SVG,analizer);
 			ofSaveImage(cairoScreenshot->getImageSurfacePixels(),response.response,OF_IMAGE_FORMAT_JPEG);
 			response.contentType = "image/jpeg";
 		}else if(type=="json"){
 	        JSONExporter json;
-			response.response = json.getJSON(text,analizer->soundBuffer,analizer->colorsForMessage,time);
+			response.response = json.getJSON(text,analizer->soundBuffer,analizer->colorsForMessage,time,analizer->data,analizer->decoded_data);
 			response.contentType = "application/json";
 		}else{
 			response.response = analizer->base64;
@@ -213,6 +217,101 @@ void testApp::update(){
 		mutex.lock();
 		condition.wait(mutex); // we don't want update draw loop so wait till app exits
 		firstRun = false;
+	}
+}
+
+void testApp::drawWave(ofPtr<AudioAnalysis> analizer){
+
+	ofFill();
+	ofSetColor(0);
+	ofDrawBitmapString(lastText,10,10);
+	analizer->wave.draw();
+	if(!analizer->colorsForMessage.empty()){
+		float width = float(ofGetWidth())/float(analizer->colorsForMessage.size());
+		for(int i=0;i<(int)analizer->colorsForMessage.size();i++){
+			ofSetColor(analizer->colorsForMessage[i]);
+			ofRect(i*width-1,ofGetHeight()-10,0,width+2,10);
+			//ofLine(i,ofGetHeight()-10,i,ofGetHeight());
+		}
+	}
+
+	//audioVisualizer.draw();
+	ofNoFill();
+
+
+	// ----------------------------
+	// draw the brightness ramp, store in a polyline
+	if(!analizer->brightnessMessage.empty()){
+		ofSetColor(0,0,0);
+		float width = float(ofGetWidth())/float(analizer->brightnessMessage.size());
+		ofBeginShape();
+		for (int i = 0; i < analizer->brightnessMessage.size(); i++){
+			ofVertex(i*width, ofGetHeight()-ofMap(analizer->brightnessMessage[i],0,1,50,80));
+		}
+		ofEndShape();
+	}
+
+
+	if(!analizer->decoded_data.empty()){
+		ofPath decoded_data;
+		decoded_data.setStrokeColor(ofColor(0,0,0));
+		decoded_data.setStrokeWidth(1);
+		decoded_data.setFilled(false);
+		ofSetColor(0,0,0);
+		float prevValue=0;
+		for(int i=4*8;i<4*8+10*8;i++){
+			stringstream ss;
+			string s;
+			char c = analizer->decoded_data[i];
+			ss << c;
+			ss >> s;
+			int value = ofToInt(s);
+			prevValue+=value?1:-1;
+			decoded_data.lineTo((i-(4*8))*ofGetWidth()/80,30-value*10);
+			decoded_data.lineTo(((i+1)-(4*8))*ofGetWidth()/80,30-value*10);
+			//decoded_data.lineTo((i+1)*ofGetWidth()/analizer->decoded_data.length(),30-10*value);
+		}
+		decoded_data.draw();
+
+
+		decoded_data.clear();
+		decoded_data.setStrokeColor(ofColor(255,0,0));
+		//ofSetColor(255,0,0);
+
+		prevValue=0;
+		for(int i=4*8+10*8;i<4*8+10*2*8;i++){
+			stringstream ss;
+			string s;
+			char c = analizer->decoded_data[i];
+			ss << c;
+			ss >> s;
+			int value = ofToInt(s);
+			prevValue+=value?1:-1;
+			decoded_data.lineTo((i-(4*8+10*8))*ofGetWidth()/80,80-value*10);
+			decoded_data.lineTo(((i+1)-(4*8+10*8))*ofGetWidth()/80,80-value*10);
+			//decoded_data.lineTo((i+1)*ofGetWidth()/analizer->decoded_data.length(),30-10*value);
+		}
+		decoded_data.draw();
+
+
+		decoded_data.clear();
+		decoded_data.setStrokeColor(ofColor(0,255,0));
+		//ofSetColor(0,255,0);
+
+		prevValue=0;
+		for(int i=4*8+10*2*8;i<4*8+10*3*8;i++){
+			stringstream ss;
+			string s;
+			char c = analizer->decoded_data[i];
+			ss << c;
+			ss >> s;
+			int value = ofToInt(s);
+			prevValue+=value?1:-1;
+			decoded_data.lineTo((i-(4*8+10*2*8))*ofGetWidth()/80,120-value*10);
+			decoded_data.lineTo(((i+1)-(4*8+10*2*8))*ofGetWidth()/80,120-value*10);
+			//decoded_data.lineTo((i+1)*ofGetWidth()/analizer->decoded_data.length(),30-10*value);
+		}
+		decoded_data.draw();
 	}
 }
 

@@ -3,7 +3,7 @@
 #pragma once
 
 
-#define USE_OFXFFT
+//#define USE_OFXFFT
 
 #include "ofMain.h"
 #include "aubioAnalyzer.h"

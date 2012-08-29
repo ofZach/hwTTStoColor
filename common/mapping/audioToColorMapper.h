@@ -30,11 +30,10 @@ public:
     float peaks[3];
     
     float volumeSmoothing;
-    float hueRange;
     float hueShiftValStart;
     float darkness;
     float hueFadeRate;
-    
+    float hueRange;
         
 };
 

@@ -29,7 +29,8 @@ class testApp : public ofBaseApp, public ofxHTTPServerListener{
 		void fileNotFound(ofxHTTPServerResponse & response);
 
 		void newSoundBuffer(const TTSData & soundBuffer);
-		void saveWave(ofCairoRenderer::Type type);
+		void saveWave(ofCairoRenderer::Type type,ofPtr<AudioAnalysis>);
+		void drawWave(ofPtr<AudioAnalysis>);
 
 
 

@@ -19,7 +19,7 @@ public:
 	virtual ~AudioAnalysis();
 
 	void setup();
-	void analize(string text, const ofColor & c, bool generateWave=false);
+	void analize(string text, const ofColor & c, float hueThres=0.0535, bool generateWave=false);
 	void computeMessageColors(const ofColor & c);
 
     vector < float > brightnessMessage;
@@ -29,17 +29,18 @@ public:
     ofBuffer base64;
 	ofPath wave;
     TTS tts;
+	string decoded_data;
+	unsigned char data[36];
 
 private:
 	void generateWave();
 	void generateBase64(int durationms);
+	void decodeData();
     audioToColorMapper ACM;
     audioAnaylzer AA;
     audioAnalysisFrame aaFrameTemp;
-    audioToColorMapper ACMtemp;
     bool bOn[80]; // 10 bytes?
 	float sums[80];
-	unsigned char data[36];
     bool hUp[80]; // hue changes up
     bool hDown[80]; // 10 bytes?
     float hueThresh;

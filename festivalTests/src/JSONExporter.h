@@ -18,12 +18,13 @@ class JSONExporter {
 public:
 	JSONExporter();
 
-	string getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, int time);
+	string getJSON(string text, ofSoundBuffer & soundBuffer, vector<ofColor> & colorsForMessage, int time, unsigned char data[36], string decodedData);
 
 private:
 	ofxJSONElement json;
 	Json::Value colors;
 	Json::Value color;
+	Json::Value data;
 	Json::Value splineBri, splineHue, splineBriCoeffs, splineHueCoeffs;
 };
 
