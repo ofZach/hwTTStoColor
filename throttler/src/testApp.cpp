@@ -1,4 +1,5 @@
 #include "testApp.h"
+#include "ofxXmlSettings.h"
 
 //--------------------------------------------------------------
 void testApp::setup(){
@@ -12,6 +13,11 @@ void testApp::setup(){
 	totalRequests=0;
 	ofSetDataPathRoot("/var/www/");
 	ofSetFrameRate(10);
+	ofxXmlSettings settings;
+	settings.loadFile("settings.xml");
+	string user = settings.getValue("user","");
+	string pass = settings.getValue("pass","");
+	http.setBasicAuthentication(user,pass);
 	httpServer = ofxHTTPServer::getServer();
 	httpServer->setServerRoot("www");		 // folder with files to be served
 	httpServer->setUploadDir("upload");		 // folder to save uploaded files
@@ -69,10 +75,12 @@ void testApp::postRequest(ofxHTTPServerResponse & response){
 		}
 		timeCalcMutex.unlock();
 
-		WorkerThreads * thread = pool.getThread();
+		/*WorkerThreads * thread = pool.getThread();
 		thread->data = response.requestFields["data"];
 		ofAddListener(thread->threadFinished,this,&testApp::threadFinished);
-		thread->startThread();
+		thread->startThread();*/
+		http.setTimeoutSeconds(requestTimeOut);
+		response.response = http.postData("http://my.idigi.co.uk/ws/sci",response.requestFields["data"],"text/xml; charset=\"UTF-8\"").responseBody;
 	}else if(response.url=="/setparams.of"){
 		if(response.requestFields.find("persecond")!=response.requestFields.end()){
 			maxReqPerSecond = ofToFloat(response.requestFields["persecond"]);

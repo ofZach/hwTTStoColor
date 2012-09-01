@@ -44,4 +44,5 @@ class testApp : public ofBaseApp, public ofxHTTPServerListener{
 		unsigned int droppedRequests, droppedLastMinute, totalRequests, requestTimeOut, requestsBeforeDrop;
 
 		ofMutex timeCalcMutex;
+		ofxHttpUtils http;
 };
