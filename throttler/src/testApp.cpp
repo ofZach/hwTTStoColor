@@ -126,9 +126,9 @@ void testApp::update(){
 		oneSec=now;
 	}
 	if(timeElapsedMin>60000){
-		reqPerSecondSum=0;
+		reqPerMinuteSum=0;
 		droppedLastMinute=0;
-		oneSec=now;
+		oneMinute=now;
 	}
 	timeCalcMutex.unlock();
 }
