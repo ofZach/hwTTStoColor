@@ -7,7 +7,7 @@ int availableServers[4] = {8885,8886,8887,8888};
 
 void killServer(int port){
 	ofLogError() << ofGetTimestampString() << ": killing " << port << endl;
-	ofFile pidFile("/var/www/"+ofToString(port)+".pid");
+	ofFile pidFile("/var/www/tts"+ofToString(port)+".pid");
 	if(!pidFile.exists()) return;
 	int pid;
 	pidFile >> pid;
