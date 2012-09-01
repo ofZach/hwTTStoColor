@@ -23,6 +23,7 @@ ThreadPool * WorkerThreads::pool = new ThreadPool;
 WorkerThreads::WorkerThreads() {
 	time = 0;
 	ofxXmlSettings settings;
+	settings.loadFile("settings.xml");
 	string user = settings.getValue("user","");
 	string pass = settings.getValue("pass","");
 	http.setBasicAuthentication(user,pass);
