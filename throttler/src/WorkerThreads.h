@@ -33,6 +33,7 @@ public:
 	unsigned long time;
 	ofxHttpUtils http;
 	ofBuffer data;
+	unsigned int requestTimeOut;
 };
 
 #endif /* WORKERTHREADS_H_ */

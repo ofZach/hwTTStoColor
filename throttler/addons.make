@@ -1,2 +1,3 @@
 ofxHttpServer
 ofxHttpUtils
+ofxXmlSettings

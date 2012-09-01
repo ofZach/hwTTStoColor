@@ -41,7 +41,7 @@ class testApp : public ofBaseApp, public ofxHTTPServerListener{
 		float requestsPerSecond, requestsPerMinute;
 		float maxReqPerMinute, maxReqPerSecond;
 
-		unsigned int droppedRequests, droppedLastMinute, totalRequests;
+		unsigned int droppedRequests, droppedLastMinute, totalRequests, requestTimeOut, requestsBeforeDrop;
 
 		ofMutex timeCalcMutex;
 };

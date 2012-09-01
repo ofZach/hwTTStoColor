@@ -46,6 +46,8 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 		string templateText = templateS.getText();
 		ofStringReplace(templateText,"%persecond%",ofToString(maxReqPerSecond));
 		ofStringReplace(templateText,"%perminute%",ofToString(maxReqPerMinute));
+		ofStringReplace(templateText,"%timeout%",ofToString(requestTimeOut));
+		ofStringReplace(templateText,"%reqtodrop%",ofToString(requestsBeforeDrop));
 		response.response = templateText;
 	}
 }
@@ -53,6 +55,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 void testApp::postRequest(ofxHTTPServerResponse & response){
 	if(response.url=="/sci.of"){
 		if(response.requestFields.find("data")==response.requestFields.end()) return;
+		if(WorkerThreads::numThreads>requestsBeforeDrop) return;
 		timeCalcMutex.lock();
 		reqPerSecondSum++;
 		reqPerMinuteSum++;
@@ -75,6 +78,12 @@ void testApp::postRequest(ofxHTTPServerResponse & response){
 		}
 		if(response.requestFields.find("perminute")!=response.requestFields.end()){
 			maxReqPerMinute = ofToFloat(response.requestFields["perminute"]);
+		}
+		if(response.requestFields.find("timeout")!=response.requestFields.end()){
+			requestTimeOut = ofToFloat(response.requestFields["timeout"]);
+		}
+		if(response.requestFields.find("reqtodrop")!=response.requestFields.end()){
+			requestsBeforeDrop = ofToFloat(response.requestFields["reqtodrop"]);
 		}
 		response.location = "/stats.of";
 		response.errCode=302;

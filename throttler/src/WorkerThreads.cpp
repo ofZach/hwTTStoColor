@@ -10,6 +10,7 @@
 #include "ofUtils.h"
 #include "ThreadPool.h"
 #include "ofLog.h"
+#include "ofxXmlSettings.h"
 
 unsigned WorkerThreads::numThreads = 0;
 unsigned WorkerThreads::maxThreads = 1;
@@ -21,7 +22,11 @@ ThreadPool * WorkerThreads::pool = new ThreadPool;
 
 WorkerThreads::WorkerThreads() {
 	time = 0;
-	http.setBasicAuthentication("yesyesno","olympic#2012");
+	ofxXmlSettings settings;
+	string user = settings.getValue("user","");
+	string pass = settings.getValue("pass","");
+	http.setBasicAuthentication(user,pass);
+	requestTimeOut=30;
 }
 
 WorkerThreads::~WorkerThreads() {
@@ -34,6 +39,7 @@ void WorkerThreads::threadedFunction(){
 	mutex.unlock();
 
 	time = ofGetElapsedTimeMillis();
+	http.setTimeoutSeconds(requestTimeOut);
 	const ofxHttpResponse & response = http.postData("http://my.idigi.co.uk/ws/sci",data,"text/xml; charset=\"UTF-8\"");
 	ofLogNotice() << response.responseBody;
 	time = ofGetElapsedTimeMillis()-time;
