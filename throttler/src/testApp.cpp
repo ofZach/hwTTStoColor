@@ -10,6 +10,7 @@ void testApp::setup(){
 	droppedRequests=0;
 	droppedLastMinute=0;
 	totalRequests=0;
+	ofSetDataPathRoot("/var/www/");
 	ofSetFrameRate(10);
 	httpServer = ofxHTTPServer::getServer();
 	httpServer->setServerRoot("www");		 // folder with files to be served
