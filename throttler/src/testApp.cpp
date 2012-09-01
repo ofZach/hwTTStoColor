@@ -62,7 +62,7 @@ void testApp::getRequest(ofxHTTPServerResponse & response){
 void testApp::postRequest(ofxHTTPServerResponse & response){
 	if(response.url=="/sci.of"){
 		if(response.requestFields.find("data")==response.requestFields.end()) return;
-		if(WorkerThreads::numThreads>requestsBeforeDrop) return;
+		//if(WorkerThreads::numThreads>requestsBeforeDrop) return;
 		timeCalcMutex.lock();
 		reqPerSecondSum++;
 		reqPerMinuteSum++;
@@ -119,8 +119,8 @@ void testApp::update(){
 	unsigned long now = ofGetElapsedTimeMillis();
 	unsigned long timeElapsedSec = now - oneSec;
 	unsigned long timeElapsedMin = now - oneMinute;
-	requestsPerSecond=float(reqPerSecondSum)/float(timeElapsedSec)*1000;
-	requestsPerMinute=float(reqPerMinuteSum)/float(timeElapsedMin)*1000;
+	requestsPerSecond = requestsPerSecond*.8 + (float(reqPerSecondSum)/float(timeElapsedSec)*1000)*.2;
+	requestsPerMinute = requestsPerMinute*.8 + (float(reqPerMinuteSum)/float(timeElapsedMin)*1000)*.2;
 	if(timeElapsedSec>1000){
 		reqPerSecondSum=0;
 		oneSec=now;
